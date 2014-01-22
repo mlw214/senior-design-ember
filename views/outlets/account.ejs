@@ -1,0 +1,82 @@
+<h2>Account Settings</h2>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Contact Information</h3>
+  </div>
+  <div class="panel-body">
+    <p>
+      Contact information is used for experiment alerts.
+      You can remove your information by submitting empty forms.
+    </p>
+    <form id="contact-form" role="form" action="">
+      <div class="form-group">
+        <label for="email" class="control-label">Email</label>
+        <input type="email" class="form-control" id="email" placeholder="email@example.com" name="user[email]">
+      </div>
+      <div class="form-group">
+        <label for="cell" class="control-label">Cell</label>
+        <input type="tel" class="form-control" id="cell" placeholder="123-123-1234" name="user[cell]">
+      </div>
+      <div class="form-group">
+        <label for="carrier" class="control-label">
+          Carrier
+        </label>
+        <select class="form-control" name="user[carrier]">
+          <option>Choose one</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <button type="submit" class="btn btn-primary">Update</button>
+      </div>
+    </form>
+  </div> <!-- panel-body -->
+</div> <!-- panel -->
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Change Password</h3>
+  </div>
+  <div class="panel-body">
+    <form id="pass-form" role="form" action="">
+      <div class="form-group">
+        <label for="old-password" class="control-label">
+          Old Password
+        </label>
+        <input type="password" class="form-control" id="old-password" placeholder="Your old password" name="user[pass]" required>
+      </div>
+      <div class="form-group">
+        <label for="new-password" class="control-label">
+          New Password
+        </label>
+        <input type="password" class="form-control" id="new-password" placeholder="Your New password" name="user[newPass]" required>
+      </div>
+      <div class="form-group">
+        <label for="confirm-password" class="control-label">
+          Confirm New Password
+        </label>
+        <input type="password" class="form-control" id="confirm-password" placeholder="Your New password" name="user[newConfirm]" required>
+      </div>
+      <div class="form-group">
+        <button type="submit" class="btn btn-primary">Update</button>
+      </div>
+    </form>
+  </div>
+</div> <!-- panel -->
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Delete Account</h3>
+  </div>
+  <div class="panel-body">
+    <p>Delete your account and all data related to it. There is no means of recovery.</p>
+    <form id="delete-form" role="form" action="">
+      <div class="form-group">
+        <label for="password" class="control-label">
+          Password
+        </label>
+        <input type="password" class="form-control" id="password" placeholder="Your Password" name="user[pass]" required>
+      </div>
+      <div class="form-group">
+        <button type="submit" class="btn btn-danger">Delete</button>
+      </div>
+    </form>
+  </div>
+</div> <!-- panel -->

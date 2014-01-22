@@ -1,0 +1,42 @@
+<h1 class="text-center">Register an Account</h1>
+<form role="form" {{action register on="submit"}}>
+  <div class="form-group">
+    <label for="username" class="control-label">
+      Username
+    </label>
+    <!--<input type="text" class="form-control" id="username" name="user[name]" required autofocus>-->
+    {{input value=username class="form-control" id="username" autofocus="autofocus" required="required"}}
+  </div>
+  <div class="form-group">
+    <label for="password" class="control-label">
+      Password
+    </label>
+    <!--<input type="password" class="form-control" id="password" name="user[pass]" required>-->
+    {{input type="password" value=password class="form-control" id="password" required="required"}}
+  </div>
+  <div class="form-group">
+    <label class="control-label" for="confirm">
+      Confirm Password
+    </label>
+    <!--<input type="password" class="form-control" id="confirm" name="user[confirm]" required>-->
+    {{input type="password" value=confirm class="form-control" id="confirm" required="required"}}
+    <span class="help-block">
+      <small>
+        Password must be at least 8 characters long.
+      </small>
+    </span>
+  </div>
+  <div class="form-group">
+    <label class="control-label" for="device-id">
+      Device ID
+    </label>
+    <!--<input type="text" class="form-control" name="id" id="device-id" required>-->
+    {{input value=deviceID class="form-control" id="device-id" required="required"}}
+    <span class="help-block">
+      <small>
+        Provided with hardware.
+      </small>
+    </span>
+  </div>
+  {{input class="btn btn-success" type="submit" value="Register" id="register"}}
+</form>

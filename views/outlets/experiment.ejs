@@ -1,0 +1,142 @@
+<h2>Run an Experiment</h2>
+<div class="panel panel-default" id="accordion">
+  <div class="panel-heading">
+    <h4 class="panel-title">
+      <a data-toggle="collapse" data-parent="#accordion" href="#form-panel">
+        Experiment Setup
+      </a>
+    </h4>
+  </div>
+  <!-- Need experiment name, period, description, contact -->
+  <div id="form-panel" class="panel-collapse collapse in">
+    <div class="panel-body">
+      <form id="main-form" role="form">
+        <div class="form-group">
+          <label for="name" class="control-label">
+            Experiment Name
+          </label>
+          <input type="text" class="form-control" id="name" placeholder="Awesome Name" name="name" required>
+        </div>
+        <div class="form-group">
+          <label for="period" class="control-label">
+            Collection Rate (seconds)
+          </label>
+          <input type="number" class="form-control" id="period" value="1" name="rate" min="1" required>
+          <span class="help-block">
+            <small>
+              How often experiment data will be written to file.
+            </small>
+          </span>
+        </div>
+        <div class="form-group">
+          <label for="description" class="control-label">
+            Description (optional)
+          </label>
+          <textarea class="form-control" name="description"></textarea>
+        </div>
+        <label class="control-label">
+          Alert Contact Method
+        </label>
+        <div class="form-group">
+          <label class="radio-inline">
+            <input type="radio" id="none" value="none" name="contact" checked>
+            None
+          </label>
+          <label class="radio-inline">
+            <input type="radio" id="email" value="email" name="contact">
+            Email
+          </label>
+          <label class="radio-inline">
+            <input type="radio" id="text" value="text" name="contact">
+            Text
+          </label>
+          <label class="radio-inline">
+            <input type="radio" id="both" value="both" name="contact">
+            Both
+          </label>
+        </div>
+        <p>Configure sensors down below, and then press start.</p>
+      </form>
+    </div> 
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-6 col-md-6 col-lg-6">
+    <button id="start" class="btn btn-success" {{action 'createExperiment'}}>
+      Start
+    </button>
+    <button id="update" class="btn btn-success hidden">
+      Update
+    </button>
+    <button id="stop" class="btn btn-danger">
+      Stop
+    </button>
+  </div>
+  <div class="col-sm-6 col-md-6 col-lg-6">
+    <div class="text-right">
+      <button id="cancel" class="btn btn-danger">
+        Cancel
+      </button>
+      <button id="relay" class="btn btn-success">
+        Relay On
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sensors">
+  <h2>Sensors</h2>
+  <div class="row" id="row-liquid">
+    <div class="col-md-5 col-lg-5">
+      <p>Liquid Temperature Sensor</p>
+    </div>
+    <div class="col-md-1 col-lg-1">
+      <p class="text-left"><strong id="liquid">5</strong></p>
+    </div>
+    <div class="col-md-1 col-lg-1">
+      <p>&deg;C</p>
+    </div>
+    <div class="col-md-5 col-lg-5">
+      <div class="text-right">
+        <button id="liquid-btn" class="btn btn-info btn-xs" {{action 'openLM'}}>
+        Configure
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="row" id="row-gas">
+    <div class="col-md-5 col-lg-5">
+      <p>Gas Temperature Sensor</p>
+    </div>
+    <div class="col-md-1 col-lg-1">
+      <p class="text-left"><strong id="gas">5</strong></p>
+    </div>
+    <div class="col-md-1 col-lg-1">
+      <p>&deg;C</p>
+    </div>
+    <div class="col-md-5 col-lg-5">
+      <div class="text-right">
+        <button id="gas-btn" class="btn btn-info btn-xs" {{action 'openGM'}}>
+        Configure
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="row" id="row-camera">
+    <div class="col-md-5 col-lg-5">
+      <p>Camera Color Dectection</p>
+    </div>
+    <div class="col-md-2 col-lg-2">
+      <p class="text-left"><strong>black</strong></p>
+    </div>
+    <div class="col-md-5 col-lg-5">
+      <div class="text-right">
+        <button id="liquid-btn" class="btn btn-info btn-xs" {{action 'openCM'}}>
+        Configure
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<%- include ../modals/camera-modal %>
+<%- include ../modals/gas-modal %>
+<%- include ../modals/liquid-modal %>

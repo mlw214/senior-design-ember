@@ -1,0 +1,69 @@
+/* Start application CSS */
+
+html,
+body,
+.ember-view {
+  height: 100%;
+}
+
+#wrap {
+  min-height: 100%;
+  height: auto;
+  margin: 0 auto -60px;
+  padding: 0 0 60px;
+}
+
+header {
+  margin-top: 20px;
+}
+
+footer {
+  height: 60px;
+}
+
+#copyright {
+  border-top: 1px solid #e5e5e5;
+}
+
+#copyright p {
+  margin-top: 20px;
+}
+
+@media (min-width: 768px) and (max-width: 1199px) {
+  .container {
+    max-width: 900px;
+  }
+  section {
+    max-width: 700;
+    margin: 0 auto;
+  }
+}
+
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1000px;
+  }
+  section {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+}
+
+section h2 {
+  margin-bottom: 20px;
+}
+
+/* End application CSS */
+
+/* Start #experiment CSS */
+
+.sensors p {
+  font-size: 18px;
+}
+
+/* End #experiment CSS */
+
+/* Start #register CSS */
+#register {
+  margin-bottom: 20px;
+}

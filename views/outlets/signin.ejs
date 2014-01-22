@@ -1,0 +1,23 @@
+<h1 class="text-center">Please Sign in</h1>
+<form role="form" {{action signin on="submit"}}>
+  <div class="form-group">
+    <label for="username" class="control-label">
+      Username
+    </label>
+    <!--<input type="text" class="form-control" id="username" name="user[name]" required autofocus>-->
+    {{input value=username class="form-control" id="username" autofocus="autofocus"}}
+  </div>
+  <div class="form-group">
+    <label for="password" class="control-label">
+      Password
+    </label>
+    <!--<input type="password" class="form-control" id="password" name="user[pass]" required>-->
+    {{input type="password" value=password class="form-control" id="password" required="required"}}
+  </div>
+  <div class="checkbox">
+    <label>
+      {{input type="checkbox" checked=remember}}Remember me
+    </label>
+  </div>
+  {{input class="btn btn-success" type="submit" value="Sign in" id="signin"}}
+</form>
