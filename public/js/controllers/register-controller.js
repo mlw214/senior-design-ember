@@ -1,9 +1,5 @@
 App.RegisterController = Ember.Controller.extend({
 
-  needs: 'application',
-
-  application: Ember.computed.alias('controllers.application'),
-
   reset: function () {
     this.setProperties({
       username: '',
@@ -20,9 +16,9 @@ App.RegisterController = Ember.Controller.extend({
       self = this;
       toastr.clear();
 
-      Ember.$.post('/user', data).done(function (response) {
-        self.application.set('token', response.token);
-// Redirect to #experiment
+      Ember.$.post('/users', data).done(function (response) {
+        self.controllerFor('signin').set('token', response.token);
+        self.redirectToRoute('experiment');
       }).fail(function (jqXHR) {
         toastr.error(jqXHR.responseJSON.error, 'Error');
       });

@@ -3,25 +3,35 @@ App.SigninController = Ember.Controller.extend({
   reset: function () {
     this.setProperties({
       username: '',
-      password: '',
-      remember: false
+      password: ''
     });
     toastr.clear();
   },
 
   token: localStorage.token,
 
-  tokenChanged: function () {
-    localStorage.token = this.get('token');
-  }.observes('token'),
+  userid: localStorage.userid,
+
+  userInfoChanged: function () {
+    var token = this.get('token');
+    var userid = this.get('userid');
+    localStorage.token = token;
+    localStorage.userid = userid;
+  }.observes('token', 'userid'),
 
   actions: {
     signin: function () {
-      var data = this.getProperties('username', 'password', 'remember'),
+      var data = this.getProperties('username', 'password'),
           self = this;
       toastr.clear();
       Ember.$.post('/token', data).done(function (response) {
         self.set('token', response.token);
+        self.set('userid', response.id);
+        DS.RESTAdapter.reopen({
+          headers: {
+            token: self.get('token')
+          }
+        });
 
         var attemptedTransition = self.get('attemptedTransition');
         if (attemptedTransition) {

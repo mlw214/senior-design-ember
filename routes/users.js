@@ -33,7 +33,20 @@ exports.create = function (req, res, next) {
 };
 
 exports.read = function (req, res, next) {
-
+  var id = req.params.id;
+  User.findById(id, function (err, user) {
+    if (err) return next(err);
+    if (user) {
+      var data = {
+        user: {
+          id: user._id,
+          username: user.username,
+          contact: user.contact
+        }
+      };
+      res.json(data);
+    } else res.json(404, { error: 'User not found' });
+  });
 };
 
 exports.update = function (req, res, next) {

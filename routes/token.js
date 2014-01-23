@@ -7,7 +7,7 @@ exports.create = function (req, res, next) {
     if (err) return next(err);
     if (user) {
       var token = createToken(user);
-      res.json({ token: token });
+      res.json({ token: token, id: user._id });
     } else {
       res.json(401, { error: 'Invalid username or password' });
     }

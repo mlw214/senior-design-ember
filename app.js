@@ -10,8 +10,11 @@ var express = require('express'),
 // Routing modules.
     routes = require('./routes'),
     token = require('./routes/token'),
-    user = require('./routes/user'),
-    experiment = require('./routes/experiment'),
+    users = require('./routes/users'),
+    experiments = require('./routes/experiments'),
+// Middleware modules.
+    verifyToken = require('./lib/middleware/verify-token'),
+    auth = require('./lib/middleware/authorization'),
 // Other modules.
     User = require('./models/user');
 
@@ -27,6 +30,7 @@ app.use(express.logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(express.methodOverride());
+app.use(verifyToken());
 //app.use(express.cookieParser('your secret here'));
 //app.use(express.session());
 app.use(app.router);
@@ -44,19 +48,20 @@ app.get('/', routes.index);
 // Token
 app.post('/token', token.create);
 
-// User
-app.post('/user', user.create);
-app.get('/user/:id', user.read);
-app.put('/user/:id', user.update);
-app.delete('/user/:id', user.delete);
+// Users - uses id from token to determine user.
+// Breaks conventions a bit with the GET request.
+app.post('/users', users.create);
+app.get('/users/:id', auth(), users.read);
+app.put('/users/:id', auth(), users.update);
+app.delete('/users/:id', auth(), users.delete);
 
-// Experiment
-app.post('/experiment', experiment.create);
-app.get('/experiment', experiment.readAll);
-app.get('/experiment/:id', experiment.read);
-app.get('/experiment/:id/download', experiment.download);
-app.put('/experiment/:id', experiment.update);
-app.delete('/experiment/:id', experiment.delete);
+// Experiments
+app.post('/experiments', auth(),experiments.create);
+app.get('/experiments', auth(), experiments.readAll);
+app.get('/experiments/:id', auth(), experiments.read);
+app.get('/experiments/:id/download', auth(), experiments.download);
+app.put('/experiments/:id', auth(), experiments.update);
+app.delete('/experiments/:id', auth(), experiments.delete);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));

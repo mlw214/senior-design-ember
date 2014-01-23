@@ -5,7 +5,10 @@ App.Router.map(function () {
   this.resource('account');
   this.route('signin');
   this.route('register');
+  this.route('signout');
 });
+
+App.ApplicationRoute = Ember.Route.extend();
 
 App.GatewayRoute = Ember.Route.extend({
   beforeModel: function (transition) {
@@ -21,7 +24,9 @@ App.GatewayRoute = Ember.Route.extend({
 
 App.AuthenticatedRoute = Ember.Route.extend({
   beforeModel: function (transition) {
-    if (!this.controllerFor('signin').get('token')) {
+    var properties = this.controllerFor('signin').getProperties('token', 
+                                                                'userid');
+    if (!properties.token || !properties.userid) {
       this.redirectToSignin(transition);
     }
   },
@@ -48,4 +53,20 @@ App.ExperimentRoute = App.AuthenticatedRoute.extend();
 
 App.ArchiveRoute = App.AuthenticatedRoute.extend();
 
-App.AccountRoute = App.AuthenticatedRoute.extend();
+App.AccountRoute = App.AuthenticatedRoute.extend({
+  model: function () {
+    return this.store.find('user', this.controllerFor('signin').get('userid'));
+  }
+});
+
+App.SignoutRoute = App.AuthenticatedRoute.extend({
+  beforeModel: function () {
+    this.controllerFor('signin').setProperties({
+      token: null,
+      userid: null
+    });
+    delete localStorage.token;
+    delete localStorage.userid;
+    this.transitionTo('signin');
+  }
+});
