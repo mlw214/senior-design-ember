@@ -1,0 +1,35 @@
+<h2>Sensor Data</h2>
+<div class="row">
+  <div class="col-sm-6 col-md-6 col-lg-6">
+    <button class="btn btn-primary" {{action "toggleRelay"}} {{bind-attr disabled=controllers.application.buttonDisabled}}>
+      {{#if controllers.application.relay}}Relay On
+      {{else}}Relay Off
+      {{/if}}
+    </button>
+  </div>
+  <div class="col-sm-6 col-md-6 col-lg-6 right">
+    <button class="btn btn-danger" {{action "toggleCanceller"}} {{bind-attr disabled=controllers.application.buttonDisabled}}>
+      {{#if controllers.application.canceller}}Canceller On
+      {{else}}Canceller Off
+      {{/if}}
+    </button>
+  </div>
+</div>
+<div class="row" id="readings">
+  <div class="col-sm-4 col-md-4 col-lg-4">
+    <h4>Gas Temperature (&deg;C)</h4>
+    <p>{{a}}</p>
+  </div>
+  <div class="col-sm-4 col-md-4 col-lg-4">
+    <div class="center">
+      <h4>Liquid Temperature (&deg;C)</h4>
+      <p>{{l}}</p>
+    </div>
+  </div>
+  <div class="col-sm-4 col-md-4 col-lg-4">
+    <div class="right">
+      <h4>Color Detected</h4>
+      <p>Black</p>
+    </div>
+  </div>
+</div>

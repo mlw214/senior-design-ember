@@ -2,7 +2,7 @@
 
 html,
 body,
-.ember-view {
+body > .ember-view {
   height: 100%;
 }
 
@@ -57,13 +57,31 @@ section h2 {
 
 /* Start #experiment CSS */
 
-.sensors p {
-  font-size: 18px;
+#btns {
+  margin-bottom: 20px;
 }
 
 /* End #experiment CSS */
 
+/* Start #sensors CSS */
+
+#readings {
+  margin-top: 20px;
+}
+
+@media (min-width: 768px) {
+  .center {
+    text-align: center;
+  }
+
+  .right {
+    text-align: right;
+  }
+}
 /* Start #register CSS */
+
 #register {
   margin-bottom: 20px;
 }
+
+/* End #register CSS */

@@ -1,64 +1,58 @@
 App.ExperimentController = Ember.ObjectController.extend({
-  modals: {
-    gas$: null,
-    liquid$: null,
-    camera$: null
-  },
+
+  needs: 'application',
+
+  notOwner: Ember.computed.not('controllers.application.owner'),
+  
+  notMonitorGas: Ember.computed.not('gas.monitor'),
+  notUsedGas: (Ember.computed.not('gas.monitor') &&
+                Ember.computed.not('gas.bound')),
+  uncheckGasBound: function () {
+    if (!this.get('gas.monitor')) {
+      this.set('gas.bound', false);
+    }
+  }.observes('gas.monitor'),
+
+  notMonitorLiquid: Ember.computed.not('liquid.monitor'),
+  notUsedLiquid: (Ember.computed.not('liquid.monitor') &&
+                  Ember.computed.not('liquid.bound')),
+  uncheckLiquidBound: function () {
+    if (!this.get('liquid.monitor')) {
+      this.set('liquid.bound', false);
+    }
+  }.observes('liquid.monitor'),
+
+  notMonitorColor: Ember.computed.not('color.monitor'),
+  notUsedColor: (Ember.computed.not('color.monitor') &&
+                  Ember.computed.not('color.bound')),
+  uncheckColorBound: function () {
+    if (!this.get('color.monitor')) {
+      this.set('color.bound', false);
+    }
+  }.observes('color.monitor'),
+
   actions: {
-    createExperiment: function () {
-      var temp = this.store.createRecord('experiment', {
-        name: 'test',
-        description: 'blah',
-        cancelled: false,
-        rate: 1,
-        camera: {
-          used: true,
-          bound: 'black',
-          auto: false
-        },
-        gas: {
-          used: true,
-          lower: 5,
-          upper: 55,
-          auto: false
-        },
-        liquid: {
-          used: true,
-          lower: 6,
-          upper: 55,
-          auto: false
-        },
-        path: '/path/to/file'
-      });
-      console.log(temp);
-      temp.save();
+    save: function () {
+      var self = this;
+      var appCont = this.get('controllers.application');
+      this.get('model').save().then(function (response) {
+        appCont.set('owner', true);
+      }).catch(App.toastrFailCallback);
     },
-    openLM: function () {
-      if (this.modals.liquid$) {
-        this.modals.liquid$.modal();
-      } else {
-        var liquid$ = $('#liquid-modal');
-        this.modals.liquid$ = liquid$;
-        this.modals.liquid$.modal();
-      }
+    update: function () {
+      var self = this;
+      this.get('model').save().then(function (response) {
+        toastr.success('Experiment updated', 'Success');
+      }).catch(App.toastrFailCallback);
     },
-    openGM: function () {
-      if (this.modals.gas$) {
-        this.modals.gas$.modal();
-      } else {
-        var gas$ = $('#gas-modal');
-        this.modals.gas$ = gas$;
-        this.modals.gas$.modal();
-      }
-    },
-    openCM: function () {
-      if (this.modals.camera$) {
-        this.modals.camera$.modal();
-      } else {
-        var camera$ = $('#camera-modal');
-        this.modals.camera$ = camera$;
-        this.modals.camera$.modal();
-      }
+    stop: function () {
+      var appCont = this.get('controllers.application');
+      
+      this.set('stop', new Date());
+      this.get('model').save().then(function (response) {
+        toastr.success('Experiment stopped', 'Success');
+        appCont.set('owner', false);
+      }).catch(App.toastrFailCallback);
     }
   }
 });

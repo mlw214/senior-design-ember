@@ -1,4 +1,4 @@
-<h2>Account Settings</h2>
+<h2>Account Settings <small>for {{username}}</small></h2>
 <div class="panel panel-default">
   <div class="panel-heading">
     <h3 class="panel-title">Contact Information</h3>
@@ -8,26 +8,22 @@
       Contact information is used for experiment alerts.
       You can remove your information by submitting empty forms.
     </p>
-    <form id="contact-form" role="form" action="">
+    <form role="form" {{action saveContact on="submit"}}>
       <div class="form-group">
-        <label for="email" class="control-label">Email</label>
-        <input type="email" class="form-control" id="email" placeholder="email@example.com" name="user[email]">
+        <label class="control-label">Email</label>
+        {{input value=email type="email" class="form-control" placeholder="email@example.com"}}
       </div>
       <div class="form-group">
-        <label for="cell" class="control-label">Cell</label>
-        <input type="tel" class="form-control" id="cell" placeholder="123-123-1234" name="user[cell]">
+        <label class="control-label">Cell</label>
+        {{input value=cellphone class="form-control" placeholder="123-123-1234"}}
       </div>
       <div class="form-group">
-        <label for="carrier" class="control-label">
+        <label class="control-label">
           Carrier
         </label>
-        <select class="form-control" name="user[carrier]">
-          <option>Choose one</option>
-        </select>
+        {{view Ember.Select class="form-control" content=carriers value=carrier}}
       </div>
-      <div class="form-group">
-        <button type="submit" class="btn btn-primary">Update</button>
-      </div>
+      {{input class="btn btn-success" type="submit" value="Update"}}
     </form>
   </div> <!-- panel-body -->
 </div> <!-- panel -->
@@ -36,28 +32,26 @@
     <h3 class="panel-title">Change Password</h3>
   </div>
   <div class="panel-body">
-    <form id="pass-form" role="form" action="">
-      <div class="form-group">
-        <label for="old-password" class="control-label">
+    <form role="form" {{action savePassword on="submit"}}>
+      <div class="form-group" {{bind-attr class="failed:has-error"}}>
+        <label class="control-label">
           Old Password
         </label>
-        <input type="password" class="form-control" id="old-password" placeholder="Your old password" name="user[pass]" required>
+        {{input value=oldPassword type="password" class="form-control" placeholder="Your old password" required="required"}}
       </div>
-      <div class="form-group">
-        <label for="new-password" class="control-label">
+      <div class="form-group" {{bind-attr class="invalid:has-error"}}>
+        <label class="control-label">
           New Password
         </label>
-        <input type="password" class="form-control" id="new-password" placeholder="Your New password" name="user[newPass]" required>
+        {{input value=newPassword type="password" class="form-control" placeholder="Your new password" required="required"}}
       </div>
-      <div class="form-group">
-        <label for="confirm-password" class="control-label">
+      <div class="form-group" {{bind-attr class="invalid:has-error"}}>
+        <label class="control-label">
           Confirm New Password
         </label>
-        <input type="password" class="form-control" id="confirm-password" placeholder="Your New password" name="user[newConfirm]" required>
+        {{input value=confirmPassword type="password" class="form-control" placeholder="Confirm new password" required="required"}}
       </div>
-      <div class="form-group">
-        <button type="submit" class="btn btn-primary">Update</button>
-      </div>
+      {{input class="btn btn-success" type="submit" value="Update"}}
     </form>
   </div>
 </div> <!-- panel -->
@@ -67,16 +61,14 @@
   </div>
   <div class="panel-body">
     <p>Delete your account and all data related to it. There is no means of recovery.</p>
-    <form id="delete-form" role="form" action="">
+    <form id="delete-form" {{action deleteAccount on="submit"}}>
       <div class="form-group">
-        <label for="password" class="control-label">
+        <label class="control-label">
           Password
         </label>
-        <input type="password" class="form-control" id="password" placeholder="Your Password" name="user[pass]" required>
+        {{input value=password type="password" class="form-control" placeholder="Your password" required="required"}}
       </div>
-      <div class="form-group">
-        <button type="submit" class="btn btn-danger">Delete</button>
-      </div>
+      {{input class="btn btn-danger" type="submit" value="Delete"}}
     </form>
   </div>
 </div> <!-- panel -->

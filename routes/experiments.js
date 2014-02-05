@@ -1,97 +1,94 @@
-var User = require('../models/user'),
+var Experiment = require('../models/experiment'),
     arduino = require('../lib/arduino'),
     path = require('path'),
     root = path.resolve(__dirname, '../experiment-files/') + '/',
     fs = require('fs');
 
+function produceJSON(exp) {
+  var obj = exp.toJSON();
+  delete obj._id;
+  delete obj.__v;
+  delete obj.path;
+  obj.id = exp._id;
+  return obj;
+}
+
 exports.read = function (req, res, next) {
   var id = req.params.id,
-      uid = req.session.uid;
-  User.findById(uid, function (err, user) {
-    if (err || !user) return next(err);
-    var exp = user.experiments.id(id);
-    if (exp) return res.send(200, exp);
-    res.send(404, 'Experiment not found');
+      username = req.session.username;
+
+  Experiment.findById(id, function (err, exp) {
+    if (err) return next(err);
+    if (exp) {
+      if (username !== exp.owner) {
+        return res.json(401, { error: 'Unauthorized' });
+      }
+      res.json({ experiment: produceJSON(exp) });
+    } else return res.json(404, { error: 'Experiment not found' });
   });
 };
 
 exports.readAll = function (req, res) {
-  var uid = req.session.uid;
-  User.findById(uid, function (err, user) {
-    if (err || !user) return next(err);
-    res.send(200, user.experiments);
-  });
+  var username = req.session.username;
+  // Need to figure out format for Ember DS.
 };
 
 exports.create = function (req, res) {
-  var exp = req.body,
-      uid = req.session.uid;
-  User.findById(uid, function (err, user) {
+  var data = req.body.experiment,
+      username = req.session.username;
+
+  if (arduino.locked) {
+    return res.json(400, { error: 'Experiment already underway' });
+  }
+
+  data.name = data.name.trim();
+  
+  Experiment.findOne({ name: data.name, owner: username}, function (err, doc) {
     if (err) return next(err);
-    if (!user) return res.send(500, 'Internal Server Error');
-    exp.name = exp.name.trim();
-    for (var i = 0; i < user.experiments.length; ++i) {
-      if (user.experiments[i].name === exp.name) {
-        res.send(400, 'Experiment name already taken');
-        return;
-      }
-    }
-    exp.path = root + user.username + '/' + exp.name;
+    if (doc) return res.json(400, { error: 'Experiment name already taken' });
+    data.owner = username;
+    data.path = root + username + '/' + data.name;
     if (!arduino.locked) arduino.lock();
-    else return res.send(400, 'Experiment already underway');
-    user.experiments.push(exp);
-    user.save(function (err, prod, num) {
+    else return res.json(400, { error: 'Experiment already underway' });
+    var experiment = new Experiment(data);
+    experiment.save(function (err, prod, num) {
       if (err) return next(err);
-      var exp = prod.experiments[prod.experiments.length-1];
-      arduino.setExperiment(exp, {
-        _id: prod._id,
-        username: prod.username,
-        contacts: prod.contacts
-      });
-      res.send(200, exp);
+      arduino.setExperiment(prod);
+      res.json({ experiment: produceJSON(prod) });
     });
+
   });
 };
 
-exports.update = function (req, res) {
+exports.update = function (req, res, next) {
   var id = req.params.id,
-      exp = req.body,
-      uid = req.session.uid;
+      exp = req.body.experiment,
+      username = req.session.username;
 
-  // If experiment is running, make sure user is the same
-  // as the one who started the experiment.
-  if (arduino.locked) {
-    if (uid.toString() !== arduino.user._id.toString()) {
-      res.send(401, 'Update denied');
+  Experiment.findById(id, function (err, doc) {
+    if (err) return next(err);
+    if (!doc) return res.json(404, { error: 'Experiment not found' });
+    if (doc.owner !== username) {
+      return res.json(401, { error: 'Unauthorized' });
     }
-  }
-  // Experiment name not allowed to be updated.
-  // _id isn't allowed to be updated (mongoose enforced), 
-  // and __v probably shouldn't.
-  delete exp._id;
-  delete exp.__v;
-  delete exp.name;
-  User.findById(uid, function (err, user) {
-    if (err || !user) return next(err);
-    var doc = user.experiments.id(id);
-    if (!doc) return res.send(404, 'Experiment not found');
+    delete exp.id;
+    delete exp.name;
     for (var key in exp) {
       doc[key] = exp[key];
     }
-    user.save(function (err, prod, num) {
+    doc.save(function (err, prod, num) {
       if (err) return next(err);
-      var exp = prod.experiments.id(id);
-      if (exp.stop) {
+      if (prod.stop) {
         arduino.clearExperiment();
         arduino.unlock();
-      } else arduino.updateExperiment(exp);
-      res.send(200, prod.experiments.id(id));
+      } else arduino.updateExperiment(prod);
+      res.json({ experiment: produceJSON(prod) });
     });
   });
 };
 
 exports.delete = function (req, res) {
-  var id = req.params.id,
+  /*var id = req.params.id,
       uid = req.session.uid;
   User.findById(uid, function (err, user) {
     if (err || !user) return next(err);
@@ -105,16 +102,24 @@ exports.delete = function (req, res) {
         res.send(200, doc);
       });
     });
-  });
+  });*/
+};
+
+exports.current = function (req, res, next) {
+  if (arduino.experiment) {
+    if (arduino.experiment.owner === req.session.username) {
+      res.json({ id: arduino.experiment._id.toString() });
+    } else res.json({ id: null });
+  } else res.json({ id: null });
 };
 
 exports.download = function (req, res) {
-  var id = req.params.id,
+  /*var id = req.params.id,
       uid = req.session.uid;
   User.findById(uid, function (err, user) {
     if (err || !user) return next(err);
     var doc = user.experiments.id(id);
     if (!doc) return res.send(404, 'Experiment not found');
     res.download(doc.path);
-  });
+  });*/
 }
