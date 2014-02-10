@@ -13,10 +13,6 @@ body > .ember-view {
   padding: 0 0 60px;
 }
 
-header {
-  margin-top: 20px;
-}
-
 footer {
   height: 60px;
 }
@@ -29,27 +25,21 @@ footer {
   margin-top: 20px;
 }
 
-@media (min-width: 768px) and (max-width: 1199px) {
-  .container {
-    max-width: 900px;
-  }
+@media (min-width: 768px) and (max-width: 991px) {
   section {
-    max-width: 700;
-    margin: 0 auto;
+    padding-left: 50px;
+    padding-right: 
   }
 }
 
-@media (min-width: 1200px) {
-  .container {
-    max-width: 1000px;
-  }
+@media (min-width: 992px) {
   section {
-    max-width: 800px;
-    margin: 0 auto;
+    padding-left: 100px;
+    padding-right: 100px;
   }
 }
 
-section h2 {
+section h1 {
   margin-bottom: 20px;
 }
 
@@ -78,6 +68,42 @@ section h2 {
     text-align: right;
   }
 }
+
+/* End #sensors CSS */
+
+/* Start #archive CSS */
+
+/*.equal-height {
+  margin-bottom: -99999px;
+  padding-bottom: 99999px;
+}
+
+#wrapper-height {
+  overflow: hidden;
+}
+
+#pager {
+  margin-bottom: 20px;
+}*/
+
+.parent {
+  display: table;
+}
+
+.child {
+  display: table-cell;
+}
+
+.pager-btn {
+  margin-bottom: 20px;
+}
+
+#right-col {
+  width: 100%;
+}
+
+/* End #archive CSS */
+
 /* Start #register CSS */
 
 #register {
@@ -85,3 +111,11 @@ section h2 {
 }
 
 /* End #register CSS */
+
+/* Start #signin CSS */
+
+#signin {
+  margin-bottom: 20px;
+}
+
+/* End #signin CSS */

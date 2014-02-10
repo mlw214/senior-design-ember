@@ -64,6 +64,11 @@ exports.update = function (req, res, next) {
         }
         user.save(function (err, prod, num) {
           if (err) return next(err);
+          req.session.contactInfo = {
+            email: prod.email,
+            cellphone: prod.cellphone,
+            carrier: prod.carrier
+          };
           res.json(200, createUserJSON(prod));
         });
       } else res.json(500, { error: 'The server exploded' });

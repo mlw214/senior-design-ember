@@ -15,7 +15,7 @@ App.SigninController = Ember.Controller.extend({
       toastr.clear();
       Ember.$.post('/sessions', data).done(function (response) {
         localStorage.token = response.token;
-        location.href = 'http://localhost:3000';
+        location.href = 'http://' + window.location.host;
       }).fail(App.toastrFailCallback);
     }
   }

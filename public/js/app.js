@@ -10,7 +10,7 @@ App.ApplicationRoute = Ember.Route.extend({
   },
   setupController: function (controller, model) {
     controller.set('model', model);
-    var client = new Faye.Client('http://localhost:3000/faye'),
+    var client = new Faye.Client('http://' + window.location.host + '/faye'),
         sensorCont = this.controllerFor('sensors');
     controller.set('faye', client);
     client.subscribe('/data', function (message) {
@@ -30,9 +30,20 @@ App.ApplicationRoute = Ember.Route.extend({
         controller.set('canceller', message.canceller);
       }
     });
+    client.subscribe('/alert', function (message) {
+      console.log(message);
+    });
   }
 });
 App.ApplicationController = Ember.ObjectController.extend({
+  routeChanged: function () {
+    var path = this.get('currentPath');
+    if (path && path.search(/archive/) >= 0) {
+      this.set('atArchive', true);
+    } else {
+      this.set('atArchive', false);
+    }
+  }.observes('currentPath'),
   faye: null,
   buttonDisabled: false,
   runningAlerted: function () {
@@ -48,11 +59,17 @@ App.ApplicationController = Ember.ObjectController.extend({
   }.observes('running', 'owner')
 });
 
+App.ApplicationSerializer = DS.RESTSerializer.extend({
+  primaryKey: '_id'
+});
+
 // Define Routes.
 App.Router.map(function () {
   this.resource('experiment');
   this.resource('sensors');
-  this.resource('archive');
+  this.resource('archive', function () {
+    this.resource('record', { path: ':id' });
+  });
   this.resource('account');
   this.route('signout');
 });
@@ -84,6 +101,31 @@ App.SensorsRoute = Ember.Route.extend();
 
 App.ArchiveRoute = Ember.Route.extend();
 
+App.ArchiveIndexRoute = Ember.Route.extend({
+  model: function (params) {
+    return this.store.find('experiment', { page: params.page });
+  },
+  setupController: function (controller, model) {
+    controller.set('model', model);
+    var pages = this.store.metadataFor('experiment').pages;
+    controller.set('pages', pages);
+  },
+  actions: {
+    queryParamsDidChange: function () {
+      this.refresh();
+    }
+  }
+});
+
+App.RecordRoute = Ember.Route.extend({
+  model: function (params) {
+    return this.store.find('experiment', params.id);
+  },
+  setupController: function (controller, model) {
+    controller.set('model', model);
+  }
+});
+
 App.AccountRoute = Ember.Route.extend({
   model: function () {
     var cache = this.get('cache');
@@ -98,7 +140,17 @@ App.AccountRoute = Ember.Route.extend({
   }
 });
 
-App.SignoutRoute = Ember.Route.extend();
+App.SignoutRoute = Ember.Route.extend({
+  beforeModel: function () {
+    Ember.$.ajax({
+      url: '/sessions',
+      type: 'delete'
+    }).done(function () {
+      localStorage.token = null;
+      window.location.href = 'http://' + window.location.host + '/auth';
+    }).fail(App.toastrFailCallback);
+  }
+});
 
 Ember.TextField.reopen({
   attributeBindings: ['required', 'autofocus']
@@ -111,3 +163,7 @@ App.toastrFailCallback = function (jqXHR) {
     toastr.error('The server exploded', 'Error');
   }
 };
+
+Ember.Handlebars.helper('format-date', function (date) {
+  return moment(date).format('MMM Do YYYY, h:mm a')
+});

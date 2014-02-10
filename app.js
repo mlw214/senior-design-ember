@@ -9,6 +9,7 @@ var express = require('express'),
     mongoose = require('mongoose'),
     faye = require('faye'),
     fayeRedis = require('faye-redis'),
+    connectRedis = require('connect-redis'),
 // Routing modules.
     routes = require('./routes'),
     sessions = require('./routes/sessions'),
@@ -34,7 +35,8 @@ var app = express(),
         host: 'localhost',
         port: 6379
       }
-    });
+    }),
+    RedisStore = connectRedis(express);
 mongoose.connect('mongodb://localhost/labv2');
 
 // All environments.
@@ -46,8 +48,14 @@ app.use(express.logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(express.methodOverride());
-app.use(express.cookieParser('your secret here'));
-app.use(express.session());
+app.use(express.cookieParser());
+app.use(express.session({
+  store: new RedisStore({
+    host: 'localhost',
+    port: 6379
+  }),
+  secret: 'what a secret'
+}));
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
 

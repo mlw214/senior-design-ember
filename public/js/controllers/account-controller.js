@@ -5,14 +5,15 @@ App.AccountController = Ember.ObjectController.extend({
 
   actions: {
     saveContact: function () {
-      var data = this.getProperties('email', 'carrier', 'cellphone');
+      var data = this.getProperties('email', 'carrier', 'cellphone'),
+          self = this;
       data.changing = 'contact';
       Ember.$.ajax({
         type: 'put',
         url: '/users/current',
         data: { user: data }
       }).done(function (response) {
-        this.set('cache', response);
+        self.set('cache', response);
         toastr.success('Updated contact info', 'Success');
       }).fail(App.toastrFailCallback);
     },

@@ -4,38 +4,42 @@ var Experiment = require('../models/experiment'),
     root = path.resolve(__dirname, '../experiment-files/') + '/',
     fs = require('fs');
 
-function produceJSON(exp) {
-  var obj = exp.toJSON();
-  delete obj._id;
-  delete obj.__v;
-  delete obj.path;
-  obj.id = exp._id;
-  return obj;
-}
 
 exports.read = function (req, res, next) {
   var id = req.params.id,
       username = req.session.username;
 
-  Experiment.findById(id, function (err, exp) {
+  Experiment.findById(id, function (err, doc) {
     if (err) return next(err);
-    if (exp) {
-      if (username !== exp.owner) {
+    if (doc) {
+      if (username !== doc.owner) {
         return res.json(401, { error: 'Unauthorized' });
       }
-      res.json({ experiment: produceJSON(exp) });
+      res.json({ experiment: doc.toJSON() });
     } else return res.json(404, { error: 'Experiment not found' });
   });
 };
 
-exports.readAll = function (req, res) {
-  var username = req.session.username;
-  // Need to figure out format for Ember DS.
+exports.readAll = function (req, res, next) {
+  var username = req.session.username,
+      callback;
+  if (!username) return res.json(401, { error: 'Unauthorized' });
+  if (req.query <= 0) req.query = 1;
+  callback = function (err, pageCount, docs) {
+    if (err) return next(err);
+    res.json({ experiment: docs, meta: { pages: pageCount } });
+    /*if (docs.length) {
+      return res.json({ experiment: docs, meta: { pages: pageCount } });
+    }
+    res.json(404, { error: 'Experiments not found' });*/
+  };
+  Experiment.paginate({ owner: username}, req.query.page, 25, callback);
 };
 
-exports.create = function (req, res) {
+exports.create = function (req, res, next) {
   var data = req.body.experiment,
-      username = req.session.username;
+      username = req.session.username,
+      contactInfo = req.session.contactInfo;
 
   if (arduino.locked) {
     return res.json(400, { error: 'Experiment already underway' });
@@ -53,10 +57,12 @@ exports.create = function (req, res) {
     var experiment = new Experiment(data);
     experiment.save(function (err, prod, num) {
       if (err) return next(err);
-      arduino.setExperiment(prod);
-      res.json({ experiment: produceJSON(prod) });
+      var contact = {};
+      contact[username] = contactInfo;
+      console.log(contact);
+      arduino.setExperiment(prod, contact);
+      res.json({ experiment: prod.toJSON() });
     });
-
   });
 };
 
@@ -82,12 +88,12 @@ exports.update = function (req, res, next) {
         arduino.clearExperiment();
         arduino.unlock();
       } else arduino.updateExperiment(prod);
-      res.json({ experiment: produceJSON(prod) });
+      res.json({ experiment: prod.toJSON() });
     });
   });
 };
 
-exports.delete = function (req, res) {
+exports.delete = function (req, res, next) {
   /*var id = req.params.id,
       uid = req.session.uid;
   User.findById(uid, function (err, user) {
@@ -108,12 +114,13 @@ exports.delete = function (req, res) {
 exports.current = function (req, res, next) {
   if (arduino.experiment) {
     if (arduino.experiment.owner === req.session.username) {
-      res.json({ id: arduino.experiment._id.toString() });
-    } else res.json({ id: null });
-  } else res.json({ id: null });
+      return res.json({ id: arduino.experiment._id.toString() });
+    }
+  }
+  res.json({ id: null });
 };
 
-exports.download = function (req, res) {
+exports.download = function (req, res, next) {
   /*var id = req.params.id,
       uid = req.session.uid;
   User.findById(uid, function (err, user) {

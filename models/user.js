@@ -13,14 +13,14 @@ var userSchema = new mongoose.Schema({
   email: { type: String, default: null },
   cellphone: { type: Number, default: null },
   carrier: { type: String, default: null }
-}),
-  authenticate = function (pass, user, fn) {
-    password.compare(pass, user.password, function (err, res) {
-      if (err) return fn(err);
-      if (res) return fn(null, user);
-      fn();
-    });
-  };
+});
+var authenticate = function (pass, user, fn) {
+  password.compare(pass, user.password, function (err, res) {
+    if (err) return fn(err);
+    if (res) return fn(null, user);
+    fn();
+  });
+};
 
 userSchema.statics.authenticateByUsername = function (name, pass, fn) {
   this.findOne({ username: name }, function (err, doc) {

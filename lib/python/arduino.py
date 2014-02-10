@@ -7,8 +7,8 @@ relay = False
 while True:
     command = raw_input()
     if command == 'd':
-        a = random.random()
-        l = random.random()
+        a = random.randint(0, 50)
+        l = random.randint(0, 50)
         sys.stdout.write('a:' + str(a) + ';l:' + str(l) + '\n')
         sys.stdout.flush()
     elif command == 's':

@@ -1,47 +1,57 @@
 App.TempTransform = DS.Transform.extend({
   serialize: function (value) {
-    return {
-      monitor: value.monitor,
-      bound: value.bound,
-      auto: value.auto,
-      lower: value.lower,
-      upper: value.upper
-    };
+    if (value) {  
+      return {
+        monitor: value.monitor,
+        bound: value.bound,
+        auto: value.auto,
+        lower: value.lower,
+        upper: value.upper
+      };
+    }
+    return null;
   },
   deserialize: function (value) {
-    return {
-      monitor: value.monitor,
-      bound: value.bound,
-      auto: value.auto,
-      lower: value.lower,
-      upper: value.upper
-    };
+    if (value) {  
+      return {
+        monitor: value.monitor,
+        bound: value.bound,
+        auto: value.auto,
+        lower: value.lower,
+        upper: value.upper
+      };
+    }
+    return null;
   }
 });
 App.ColorTransform = DS.Transform.extend({
   serialize: function (value) {
-    return {
-      monitor: value.monitor,
-      bound: value.bound,
-      auto: value.auto,
-      color: value.color
-    };
+    if (value) {  
+      return {
+        monitor: value.monitor,
+        bound: value.bound,
+        auto: value.auto,
+        color: value.color
+      };
+    }
+    return null;
   },
   deserialize: function (value) {
-    return {
-      monitor: value.monitor,
-      bound: value.bound,
-      auto: value.auto,
-      color: value.color
-    };
+    if (value) {  
+      return {
+        monitor: value.monitor,
+        bound: value.bound,
+        auto: value.auto,
+        color: value.color
+      };
+    }
+    return null;
   }
 });
 
 App.Experiment = DS.Model.extend({
   name: DS.attr('string'),
-  start: DS.attr('date', {
-    defaultValue: function () { return new Date(); }
-  }),
+  start: DS.attr('date'),
   stop: DS.attr('date'),
   cancelled: DS.attr('boolean', { defaultValue: false }),
   rate: DS.attr('number', { defaultValue: 1 }),

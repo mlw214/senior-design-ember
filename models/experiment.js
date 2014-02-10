@@ -1,4 +1,5 @@
-var mongoose = require('mongoose');
+var mongoose = require('mongoose'),
+    paginate = require('../lib/paginate');
 
 var experimentSchema = new mongoose.Schema({
   name: { type: String, index: true },
@@ -32,5 +33,7 @@ var experimentSchema = new mongoose.Schema({
   },
   path: String
 });
+
+experimentSchema.statics.paginate = paginate;
 
 module.exports = mongoose.model('Experiment', experimentSchema);

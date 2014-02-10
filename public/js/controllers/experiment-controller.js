@@ -35,9 +35,12 @@ App.ExperimentController = Ember.ObjectController.extend({
     save: function () {
       var self = this;
       var appCont = this.get('controllers.application');
+      this.set('start', new Date());
       this.get('model').save().then(function (response) {
         appCont.set('owner', true);
-      }).catch(App.toastrFailCallback);
+      }).catch(function (jqXHR) {
+        console.log(jqXHR);
+      });
     },
     update: function () {
       var self = this;

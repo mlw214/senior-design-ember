@@ -9,7 +9,7 @@
 
     <title>Remote Sensors Lab</title>
 
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/3.0.3/slate/bootstrap.min.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.min.css">
     <link rel="stylesheet" href="/css/style.css">
 
@@ -22,34 +22,33 @@
 
     <script type="text/x-handlebars">
     <div id="wrap">
-      <div class="container">
 
-        <!-- Static navbar -->
-        <header>
-          <div class="navbar navbar-default" role="navigation">
-            <div class="navbar-header">
-              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-              </button>
-              {{#link-to 'signin' class="navbar-brand"}}Remote Lab Sensors{{/link-to}}
-            </div>
-            <div class="navbar-collapse collapse">
-              <ul class="nav navbar-nav navbar-right">
-                {{#view App.NavView}}
-                  {{#link-to 'signin'}}Sign in{{/link-to}}
-                {{/view}}
-                {{#view App.NavView}}
-                  {{#link-to 'register'}}Register{{/link-to}}
-                {{/view}}
-              </ul>
-            </div><!--/.nav-collapse -->
+      <!-- Static navbar -->
+      <div class="navbar navbar-default navbar-static-top" role="navigation">
+        <div class="container">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            {{#link-to 'signin' class="navbar-brand"}}Remote Lab Sensors{{/link-to}}
           </div>
-        </header>
+          <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+              {{#view App.NavView}}
+                {{#link-to 'signin'}}Sign in{{/link-to}}
+              {{/view}}
+              {{#view App.NavView}}
+                {{#link-to 'register'}}Register{{/link-to}}
+              {{/view}}
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
 
-        <!-- Main component for a primary marketing message or call to action -->
+      <div class="container">
         <section>
           {{outlet}}
         </section>
@@ -75,7 +74,7 @@
 
     <!-- Required JS Libraries -->
     <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.3.0/handlebars.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.min.js"></script>
     <script src="/js/lib/ember.js"></script>
