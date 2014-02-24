@@ -23,7 +23,7 @@ var express = require('express'),
     auth = require('./lib/middleware/authorization'),
 // Other modules.
     User = require('./models/user'),
-    arduino = require('./lib/arduino');
+    handler = require('./lib/hardware-interface');
 
 var app = express(),
     server = http.createServer(app),
@@ -134,10 +134,14 @@ app.delete('/experiments/:id',
             auth.compareSessionAndToken(),
             experiments.delete);
 
+
+// Test
+//app.get('/test', function (req, res) { res.render('test'); });
+
 bayeux.attach(server);
 server.listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
 
-arduino.initialize(bayeux);
-arduino.start();
+handler.initialize(bayeux);
+handler.start();

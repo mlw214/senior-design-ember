@@ -4,6 +4,7 @@ Ember.$.ajaxSetup({
     token: localStorage.token
   }
 });
+
 App.ApplicationRoute = Ember.Route.extend({
   model: function () {
     return Ember.$.getJSON('/status');
@@ -35,7 +36,14 @@ App.ApplicationRoute = Ember.Route.extend({
     });
   }
 });
+
 App.ApplicationController = Ember.ObjectController.extend({
+  modelIdCount: -1,
+  incrementAndGetId: function () {
+    var id = this.get('modelIdCount');
+    this.set('modelIdCount', ++id);
+    return id;
+  },
   routeChanged: function () {
     var path = this.get('currentPath');
     if (path && path.search(/archive/) >= 0) {
@@ -89,8 +97,22 @@ App.ExperimentRoute = Ember.Route.extend({
     });
   },
   model: function () {
+    var appCont = this.controllerFor('application'),
+        placeholder, id;
     if (!this.get('id')) {
-      return this.store.createRecord('experiment');
+      placeholder = this.store.getById('experiment',
+                                        appCont.get('modelIdCount'));
+
+      if (placeholder) {
+        return placeholder;
+      } else {
+        // Give it an ID so we can load it if the user nagivates away from
+        // #experiment. Prevents empty records from being created everytime.
+        id = appCont.incrementAndGetId();
+        placeholder = this.store.createRecord('experiment', { id: id });
+
+        return placeholder;
+      }
     } else {
       return this.store.find('experiment', this.get('id'));
     }
@@ -128,11 +150,12 @@ App.RecordRoute = Ember.Route.extend({
 
 App.AccountRoute = Ember.Route.extend({
   model: function () {
-    var cache = this.get('cache');
+    /*var cache = this.get('cache');
     if (cache) {
       return cache;
     }
-    return Ember.$.getJSON('/users/current');
+    return Ember.$.getJSON('/users/current');*/
+    return App.UserStore.getCurrentUser();
   },
   setupController: function (controller, model) {
     controller.set('model', model);
@@ -152,6 +175,36 @@ App.SignoutRoute = Ember.Route.extend({
   }
 });
 
+App.UserStoreObject = Ember.Object.extend({
+  cache: null,
+  getCurrentUser: function () {
+    var cache = this.get('cache'),
+        self = this;
+    if (cache) {
+      return cache;
+    } else {
+      return Ember.$.getJSON('/users/current').then(function (response) {
+        self.set('cache', response);
+        return response;
+      });
+    }
+  },
+  saveCurrentUser: function () {
+    var cache = this.get('cache'),
+        self = this;
+    cache.changing = 'contact';
+    return Ember.$.ajax({
+      url: '/users/current',
+      type: 'put',
+      data: { user: cache }
+    }).done(function (response) {
+      self.set('cache', response);
+    });
+  }
+});
+
+App.UserStore = App.UserStoreObject.create();
+
 Ember.TextField.reopen({
   attributeBindings: ['required', 'autofocus']
 });
@@ -165,5 +218,14 @@ App.toastrFailCallback = function (jqXHR) {
 };
 
 Ember.Handlebars.helper('format-date', function (date) {
-  return moment(date).format('MMM Do YYYY, h:mm a')
+  if (date) {
+    return moment(date).format('MMM Do YYYY, h:mm a');
+  } else {
+    return 'Ongoing';
+  }
+});
+
+Ember.Handlebars.helper('yes-no', function (bool) {
+  if (bool) return 'Yes';
+  else return 'No';
 });

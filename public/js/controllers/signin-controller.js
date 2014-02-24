@@ -5,7 +5,6 @@ App.SigninController = Ember.Controller.extend({
       username: '',
       password: ''
     });
-    toastr.clear();
   },
 
   actions: {
@@ -16,7 +15,7 @@ App.SigninController = Ember.Controller.extend({
       Ember.$.post('/sessions', data).done(function (response) {
         localStorage.token = response.token;
         location.href = 'http://' + window.location.host;
-      }).fail(App.toastrFailCallback);
+      }).fail();
     }
   }
 });

@@ -1,10 +1,13 @@
-var arduino = require('../lib/arduino');
+var handler = require('../lib/hardware-interface');
 
 exports.get = function (req, res) {
-  var status = { relay: arduino.relay, canceller: arduino.canceller };
-  if (arduino.experiment) {
+  var experiment = handler.getExperiment(),
+      relay = handler.getRelayStatus(),
+      canceller = handler.getCancellerStatus();
+  var status = { relay: relay, canceller: canceller };
+  if (experiment) {
     status.running = true;
-    if (arduino.experiment.owner === req.session.username) {
+    if (experiment.owner === req.session.username) {
       status.owner = true;
     } else {
       status.owner = false;

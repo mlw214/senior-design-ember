@@ -1,9 +1,22 @@
 var Experiment = require('../models/experiment'),
-    arduino = require('../lib/arduino'),
+    handler = require('../lib/hardware-interface'),
     path = require('path'),
     root = path.resolve(__dirname, '../experiment-files/') + '/',
     fs = require('fs');
 
+function checkBounds(data) {
+  if (data.gas.bound) {
+    if (data.gas.lower >= data.gas.upper) {
+      return false;
+    }
+  }
+  if (data.liquid.bound) {
+    if (data.liquid.lower >= data.liquid.upper) {
+      return false;
+    }
+  }
+  return true;
+}
 
 exports.read = function (req, res, next) {
   var id = req.params.id,
@@ -28,23 +41,33 @@ exports.readAll = function (req, res, next) {
   callback = function (err, pageCount, docs) {
     if (err) return next(err);
     res.json({ experiment: docs, meta: { pages: pageCount } });
-    /*if (docs.length) {
-      return res.json({ experiment: docs, meta: { pages: pageCount } });
-    }
-    res.json(404, { error: 'Experiments not found' });*/
   };
-  Experiment.paginate({ owner: username}, req.query.page, 25, callback);
+  Experiment.paginate({ owner: username }, req.query.page, 25, callback);
 };
 
 exports.create = function (req, res, next) {
-  var data = req.body.experiment,
+  var data = (req.body ? req.body.experiment : null),
       username = req.session.username,
-      contactInfo = req.session.contactInfo;
+      contactInfo = req.session.contactInfo,
+      boundsError;
 
-  if (arduino.locked) {
+  if (!data) {
+    return res.json(400, { error: 'Bad request' });
+  }
+  if (handler.isLocked()) {
     return res.json(400, { error: 'Experiment already underway' });
   }
 
+  delete data._id;
+  if (!data.name) {
+    return res.json(400, { error: 'Missing experiment name' });
+  }
+  if (!checkBounds(data)) {
+    return res.json(400, {
+      error: 'Upper bound must be greater than the lower'
+    });
+  }
+  
   data.name = data.name.trim();
   
   Experiment.findOne({ name: data.name, owner: username}, function (err, doc) {
@@ -52,15 +75,14 @@ exports.create = function (req, res, next) {
     if (doc) return res.json(400, { error: 'Experiment name already taken' });
     data.owner = username;
     data.path = root + username + '/' + data.name;
-    if (!arduino.locked) arduino.lock();
+    if (!handler.isLocked()) handler.lock();
     else return res.json(400, { error: 'Experiment already underway' });
     var experiment = new Experiment(data);
     experiment.save(function (err, prod, num) {
       if (err) return next(err);
       var contact = {};
       contact[username] = contactInfo;
-      console.log(contact);
-      arduino.setExperiment(prod, contact);
+      handler.setExperiment(prod, contact);
       res.json({ experiment: prod.toJSON() });
     });
   });
@@ -68,8 +90,18 @@ exports.create = function (req, res, next) {
 
 exports.update = function (req, res, next) {
   var id = req.params.id,
-      exp = req.body.experiment,
+      exp = (req.body ? req.body.experiment : null),
       username = req.session.username;
+
+  if (!exp) {
+    return res.json(400, { error: 'Bad request' });
+  }
+
+  if (!checkBounds(exp)) {
+    return res.json(400, {
+      error: 'Upper bound must be greater than the lower'
+    });
+  }
 
   Experiment.findById(id, function (err, doc) {
     if (err) return next(err);
@@ -79,15 +111,20 @@ exports.update = function (req, res, next) {
     }
     delete exp.id;
     delete exp.name;
-    for (var key in exp) {
-      doc[key] = exp[key];
+    if (exp.stop) {
+      // Don't allow any other changes to persist.
+      doc.stop = exp.stop;
+    } else {
+      for (var key in exp) {
+        doc[key] = exp[key];
+      }
     }
     doc.save(function (err, prod, num) {
       if (err) return next(err);
       if (prod.stop) {
-        arduino.clearExperiment();
-        arduino.unlock();
-      } else arduino.updateExperiment(prod);
+        handler.clearExperiment();
+        handler.unlock();
+      } else handler.updateExperiment(prod);
       res.json({ experiment: prod.toJSON() });
     });
   });
@@ -112,9 +149,10 @@ exports.delete = function (req, res, next) {
 };
 
 exports.current = function (req, res, next) {
-  if (arduino.experiment) {
-    if (arduino.experiment.owner === req.session.username) {
-      return res.json({ id: arduino.experiment._id.toString() });
+  var experiment = handler.getExperiment();
+  if (experiment) {
+    if (experiment.owner === req.session.username) {
+      return res.json({ id: experiment._id });
     }
   }
   res.json({ id: null });

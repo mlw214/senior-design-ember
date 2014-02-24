@@ -2,7 +2,7 @@ App.TempTransform = DS.Transform.extend({
   serialize: function (value) {
     if (value) {  
       return {
-        monitor: value.monitor,
+        save: value.save,
         bound: value.bound,
         auto: value.auto,
         lower: value.lower,
@@ -14,7 +14,7 @@ App.TempTransform = DS.Transform.extend({
   deserialize: function (value) {
     if (value) {  
       return {
-        monitor: value.monitor,
+        save: value.save,
         bound: value.bound,
         auto: value.auto,
         lower: value.lower,
@@ -28,7 +28,7 @@ App.ColorTransform = DS.Transform.extend({
   serialize: function (value) {
     if (value) {  
       return {
-        monitor: value.monitor,
+        save: value.save,
         bound: value.bound,
         auto: value.auto,
         color: value.color
@@ -39,7 +39,7 @@ App.ColorTransform = DS.Transform.extend({
   deserialize: function (value) {
     if (value) {  
       return {
-        monitor: value.monitor,
+        save: value.save,
         bound: value.bound,
         auto: value.auto,
         color: value.color
@@ -59,7 +59,7 @@ App.Experiment = DS.Model.extend({
   description: DS.attr('string'),
   gas: DS.attr('temp', {
     defaultValue: {
-      monitor: true,
+      save: true,
       bound: false,
       auto: false,
       lower: 0,
@@ -68,7 +68,7 @@ App.Experiment = DS.Model.extend({
   }),
   liquid: DS.attr('temp', {
     defaultValue: {
-      monitor: true,
+      save: true,
       bound: false,
       auto: false,
       lower: 0,
@@ -77,7 +77,7 @@ App.Experiment = DS.Model.extend({
   }),
   color: DS.attr('color', {
     defaultValue: {
-      monitor: true,
+      save: false,
       bound: false,
       auto: false,
       color: '#e5e5e5'

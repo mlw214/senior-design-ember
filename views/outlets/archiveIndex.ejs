@@ -5,26 +5,22 @@
   <div class="child" id="right-col">
     <div class="text-right">
       {{#link-to 'archive' (query-params page=prevPage) class="btn btn-default btn-sm pager-btn" role="button" classBinding="atBeginning:disabled"}}
-      &larr;
+      <span class="glyphicon glyphicon-chevron-left"></span>
       {{/link-to}}
       {{#link-to 'archive' (query-params page=nextPage) class="btn btn-default btn-sm pager-btn" role="button" classBinding="atEnd:disabled"}}
-      &rarr;
+      <span class="glyphicon glyphicon-chevron-right"></span>
       {{/link-to}}
     </div>
   </div>
 </div>
 <div class="list-group">
   {{#each}}
-    {{#if id}}
+    {{#unless isNew}}
       {{#link-to "record" id class="list-group-item"}}
         <h4 class="list-group-item-heading">Name: {{name}}</h4>
         <p class="list-group-item-text">Start: {{format-date start}}</p>
-        {{#if stop}}
-          <p class="list-group-item-text">Stop: {{format-date stop}}</p>
-        {{else}}
-          <p class="list-group-item-text"><strong>Still running</strong></p>
-        {{/if}}
+        <p class="list-group-item-text">Stop: {{format-date stop}}</p>
       {{/link-to}}
-    {{/if}}
+    {{/unless}}
   {{/each}}
 </div>

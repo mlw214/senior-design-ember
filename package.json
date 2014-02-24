@@ -1,5 +1,5 @@
 {
-  "name": "application-name",
+  "name": "remote-sensors-lab",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -16,6 +16,8 @@
     "faye": "~1.0.1",
     "jsonwebtoken": "~0.1.0",
     "faye-redis": "~0.2.0",
-    "connect-redis": "~1.4.6"
+    "connect-redis": "~1.4.6",
+    "node-uuid": "~1.4.1",
+    "tinycolor2": "~0.9.17"
   }
 }

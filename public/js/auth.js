@@ -19,7 +19,16 @@ App.ResetRoute = Ember.Route.extend({
   }
 });
 
-App.SigninRoute = App.ResetRoute.extend();
+App.SigninRoute = App.ResetRoute.extend({
+  setupController: function (controller, model) {
+    this._super(controller, model);
+    var cont = this.controllerFor('register');
+    if (cont.get('justCreated')) {
+      toastr.success('Registration completed', 'Success');
+      cont.set('justCreated', false);
+    }
+  }
+});
 
 App.RegisterRoute = App.ResetRoute.extend();
 

@@ -1,4 +1,6 @@
 var validator = require('validator');
 
 
-console.log(validator.isAlphanumeric(''));
+var pattern = /\s|-|\(|\)/
+
+console.log(isNaN(' '));

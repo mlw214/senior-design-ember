@@ -16,3 +16,6 @@ npm-debug.log
 node_modules/
 experiment-files/
 security/
+
+lib/c++/a.out
+lib/c++/command.txt

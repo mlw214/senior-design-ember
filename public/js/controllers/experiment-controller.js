@@ -4,58 +4,75 @@ App.ExperimentController = Ember.ObjectController.extend({
 
   notOwner: Ember.computed.not('controllers.application.owner'),
   
-  notMonitorGas: Ember.computed.not('gas.monitor'),
-  notUsedGas: (Ember.computed.not('gas.monitor') &&
-                Ember.computed.not('gas.bound')),
-  uncheckGasBound: function () {
-    if (!this.get('gas.monitor')) {
-      this.set('gas.bound', false);
-    }
-  }.observes('gas.monitor'),
+  noGasBound: Ember.computed.not('gas.bound'),
+  noLiquidBound: Ember.computed.not('liquid.bound'),
+  noColorBound: Ember.computed.not('color.bound'),
 
-  notMonitorLiquid: Ember.computed.not('liquid.monitor'),
-  notUsedLiquid: (Ember.computed.not('liquid.monitor') &&
-                  Ember.computed.not('liquid.bound')),
-  uncheckLiquidBound: function () {
-    if (!this.get('liquid.monitor')) {
-      this.set('liquid.bound', false);
+  checkBounds: function () {
+    this.setProperties({
+      badLiquidBounds: false,
+      badGasBounds: false
+    });
+    var props = this.getProperties('gas', 'liquid');
+    if (props.gas.bound) {
+      if (props.gas.lower >= props.gas.upper) {
+        this.set('badGasBounds', true);
+        //toastr.error('Upper bound must be greater than the lower', 'Error');
+        return false;
+      }
     }
-  }.observes('liquid.monitor'),
-
-  notMonitorColor: Ember.computed.not('color.monitor'),
-  notUsedColor: (Ember.computed.not('color.monitor') &&
-                  Ember.computed.not('color.bound')),
-  uncheckColorBound: function () {
-    if (!this.get('color.monitor')) {
-      this.set('color.bound', false);
+    if (props.liquid.bound) {
+      if (props.liquid.lower >= props.liquid.upper) {
+        this.set('badLiquidBounds', true);
+        //toastr.error('Upper bound must be greater than the lower', 'Error');
+        return false;
+      }
     }
-  }.observes('color.monitor'),
+    return true;
+  },
+  
 
   actions: {
     save: function () {
-      var self = this;
-      var appCont = this.get('controllers.application');
+      var self = this,
+          appCont = this.get('controllers.application');
+
+
+      // Basic data verification.
+      if (!this.checkBounds()) {
+        return;
+      }
+      // Set id to null. If it isn't Ember will freak that the id changes
+      // in the response.
+      /*this.set('id', null);
       this.set('start', new Date());
       this.get('model').save().then(function (response) {
         appCont.set('owner', true);
-      }).catch(function (jqXHR) {
-        console.log(jqXHR);
-      });
+      }).catch(App.toastrFailCallback);*/
     },
     update: function () {
-      var self = this;
+      /*var self = this;
       this.get('model').save().then(function (response) {
         toastr.success('Experiment updated', 'Success');
-      }).catch(App.toastrFailCallback);
+      }).catch(App.toastrFailCallback);*/
+      if (!this.checkBounds()) {
+        return;
+      }
     },
     stop: function () {
-      var appCont = this.get('controllers.application');
+      var appCont = this.get('controllers.application'),
+          self = this;
       
       this.set('stop', new Date());
       this.get('model').save().then(function (response) {
+        var id, rec;
         toastr.success('Experiment stopped', 'Success');
         appCont.set('owner', false);
-      }).catch(App.toastrFailCallback);
+        // Allow user to start a new experiment.
+        id = appCont.incrementAndGetId();
+        rec = self.store.createRecord('experiment', { id: id });
+        self.set('content', rec);
+      }).catch();
     }
   }
 });

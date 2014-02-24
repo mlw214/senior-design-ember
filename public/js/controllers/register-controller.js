@@ -5,20 +5,25 @@ App.RegisterController = Ember.Controller.extend({
       username: '',
       password: '',
       confirm: '',
-      deviceID: ''
+      deviceID: '',
+      justCreated: false
     });
-    toastr.clear();
   },
 
   actions: {
     register: function () {
       var data = this.getProperties('username', 'password', 'confirm', 'deviceID'),
       self = this;
-      toastr.clear();
+      if (data.password.length < 8) {
+        return;
+      }
+      if (data.password !== data.confirm) {
+        return;
+      }
       Ember.$.post('/users', data).done(function (response) {
-        toastr.success('Account created', 'Success');
+        self.set('justCreated', true);
         self.transitionToRoute('signin');
-      }).fail(App.toastrFailCallback);
+      }).fail();
     }
   }
 });

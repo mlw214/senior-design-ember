@@ -3,6 +3,13 @@ var User = require('../models/user'),
 
 exports.create = function (req, res, next) {
   var data = req.body;
+  // Make sure data is actually there.
+  if (!data) {
+    return res.json(400, { error: 'Bad request'});
+  }
+  if (!data.username || !data.password) {
+    return res.json(400, { error: 'Both username and password are required'});
+  }
   User.authenticateByUsername(data.username, data.password, 
                               function (err, user) {
     if (err) return next(err);

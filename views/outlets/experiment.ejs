@@ -33,57 +33,57 @@
 <h4>Gas Temperature Sensor</h4>
 <form role="form" id="gas">
   <label class="checkbox-inline">
-    {{input type="checkbox" checked=gas.monitor}} Monitor Sensor
+    {{input type="checkbox" checked=gas.save}} Save Readings
   </label>
   <label class="checkbox-inline">
-    {{input type="checkbox" checked=gas.bound disabled=notMonitorGas}} Use Bounds
+    {{input type="checkbox" checked=gas.bound}} Use Bounds
   </label>
   <label class="checkbox-inline">
-    {{input type="checkbox" checked=gas.auto disabled=notUsedGas}} Auto Cancel
+    {{input type="checkbox" checked=gas.auto disabled=noGasBound}} Auto Cancel
   </label>
-  <div class="form-group">
+  <div class="form-group" {{bind-attr class="badGasBounds:has-error"}}>
     <label class="control-label">Lower Bound</label>
-    {{view App.NumberField value=gas.lower class="form-control" disabled=notUsedGas}}
+    {{view App.NumberField value=gas.lower class="form-control" disabled=noGasBound}}
   </div>
-  <div class="form-group">
+  <div class="form-group" {{bind-attr class="badGasBounds:has-error"}}>
     <label class="control-label">Upper Bound</label>
-    {{view App.NumberField value=gas.upper class="form-control" disabled=notUsedGas}}
+    {{view App.NumberField value=gas.upper class="form-control" disabled=noGasBound}}
   </div>
 </form>
 <h4>Liquid Temperature Sensor</h4>
 <form role="form" id="liquid">
   <label class="checkbox-inline">
-    {{input type="checkbox" checked=liquid.monitor}} Monitor Sensor
+    {{input type="checkbox" checked=liquid.save}} Save Readings
   </label>
   <label class="checkbox-inline">
-    {{input type="checkbox" checked=liquid.bound disabled=notMonitorLiquid}} Use Bounds
+    {{input type="checkbox" checked=liquid.bound}} Use Bounds
   </label>
   <label class="checkbox-inline">
-    {{input type="checkbox" checked=liquid.auto disabled=notUsedLiquid}} Auto Cancel
+    {{input type="checkbox" checked=liquid.auto disabled=noLiquidBound}} Auto Cancel
   </label>
-  <div class="form-group">
+  <div class="form-group" {{bind-attr class="badLiquidBounds:has-error"}}>
     <label class="control-label">Lower Bound</label>
-    {{view App.NumberField value=liquid.lower class="form-control" disabled=notUsedLiquid}}
+    {{view App.NumberField value=liquid.lower class="form-control" disabled=noLiquidBound}}
   </div>
-  <div class="form-group">
+  <div class="form-group" {{bind-attr class="badLiquidBounds:has-error"}}>
     <label class="control-label">Upper Bound</label>
-    {{view App.NumberField value=liquid.upper class="form-control" disabled=notUsedLiquid}}
+    {{view App.NumberField value=liquid.upper class="form-control" disabled=noLiquidBound}}
   </div>
 </form>
 <h4>Color Sensor</h4>
 <form role="form" id="color">
   <label class="checkbox-inline">
-    {{input type="checkbox" checked=color.monitor}} Monitor Sensor
+    {{input type="checkbox" checked=color.save}} Save Readings
   </label>
   <label class="checkbox-inline">
-    {{input type="checkbox" checked=color.bound disabled=notMonitorColor}} Use Bounds
+    {{input type="checkbox" checked=color.bound}} Use Bounds
   </label>
   <label class="checkbox-inline">
-    {{input type="checkbox" checked=color.auto disabled=notUsedColor}} Auto Cancel
+    {{input type="checkbox" checked=color.auto disabled=noColorBound}} Auto Cancel
   </label>
   <div class="form-group">
     <label class="control-label">Color Bound</label>
-    {{input type="color" value=color.color class="form-control" disabled=notUsedColor}}
+    {{input type="color" value=color.color class="form-control" disabled=noColorBound}}
   </div>
 </form>
 <div id="btns">

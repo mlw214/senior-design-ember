@@ -1,25 +1,33 @@
-var arduino = require('../lib/arduino');
+var handler = require('../lib/hardware-interface');
 
 exports.relay = function (req, res) {
-  if (arduino.experiment) {
-    if (arduino.experiment.owner !== req.session.username) {
-      res.json(401, { error: 'Unauthorized' });
+  var experiment = handler.getExperiment(),
+      relay = (req.body ? req.body.relay : null);
+  if (experiment) {
+    if (experiment.owner !== req.session.username) {
+      return res.json(401, { error: 'Unauthorized' });
     } 
   }
-  arduino.toggleRelay(req.body.relay);
-  arduino.once('relay', function (state) {
+  if (relay !== null) {
+    handler.toggleRelay(relay);
+  } else return res.json(400, { error: 'Bad request' });
+  handler.once('relay', function (state) {
     res.json({ relay: state })
   });
 };
 
 exports.canceller = function (req, res) {
-  if (arduino.experiment) {
-    if (arduino.experiment.owner !== req.session.username) {
+  var experiment = handler.getExperiment(),
+      canceller = (req.body ? req.body.canceller : null);
+  if (experiment) {
+    if (experiment.owner !== req.session.username) {
       res.json(401, { error: 'Unauthorized' });
     } 
   }
-  arduino.toggleCanceller(req.body.canceller);
-  arduino.once('canceller', function (state) {
+  if (relay !== null) {
+    handler.toggleCanceller(canceller);
+  } else return res.json(400, { error: 'Bad request' });
+  handler.once('canceller', function (state) {
     res.json({ relay: state })
   });
 };

@@ -59,6 +59,10 @@ section h1 {
   margin-top: 20px;
 }
 
+.flowplayer {
+  margin-bottom: 20px;
+}
+
 @media (min-width: 768px) {
   .center {
     text-align: center;
@@ -72,19 +76,6 @@ section h1 {
 /* End #sensors CSS */
 
 /* Start #archive CSS */
-
-/*.equal-height {
-  margin-bottom: -99999px;
-  padding-bottom: 99999px;
-}
-
-#wrapper-height {
-  overflow: hidden;
-}
-
-#pager {
-  margin-bottom: 20px;
-}*/
 
 .parent {
   display: table;

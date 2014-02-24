@@ -1,4 +1,5 @@
 <h1>Sensor Data</h1>
+{{view App.FlowplayerView}}
 <div class="row">
   <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
     <button class="btn btn-primary" {{action "toggleRelay"}} {{bind-attr disabled=controllers.application.buttonDisabled}}>
@@ -18,20 +19,14 @@
   </div>
 </div>
 <div class="row" id="readings">
-  <div class="col-sm-4 col-md-4 col-lg-4">
+  <div class="col-sm-6 col-md-6 col-lg-6">
     <h4>Gas Temperature (&deg;C)</h4>
     <p>{{a}}</p>
   </div>
-  <div class="col-sm-4 col-md-4 col-lg-4">
+  <div class="col-sm-6 col-md-6 col-lg-6">
     <div class="center">
       <h4>Liquid Temperature (&deg;C)</h4>
       <p>{{l}}</p>
-    </div>
-  </div>
-  <div class="col-sm-4 col-md-4 col-lg-4">
-    <div class="right">
-      <h4>Color Detected</h4>
-      <p>Black</p>
     </div>
   </div>
 </div>

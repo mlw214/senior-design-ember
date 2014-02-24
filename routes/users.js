@@ -16,11 +16,33 @@ function createUserJSON(user) {
   };
 }
 
+validator.toTelephone = function (number) {
+  var input = this.toString(number), i, result = '',
+      pattern = /\s|-|\(|\)/;
+  for (i = 0; i < input.length; ++i) {
+    // JS Engine is wacky xD.
+    if (!isNaN(parseInt(input[i], 10))) {
+      result += input[i];
+    } else {
+      if (input[i].search(pattern) === -1) {
+        return null;
+      }
+    }
+  }
+  if (this.isNumeric(result) && result.length === 10) {
+    return result;
+  }
+  return null;
+}
+
 exports.create = function (req, res, next) {
   var data = req.body;
   // Data verification.
+  if (!data) {
+    return res.json(400, { error: 'Bad request' });
+  }
   if (!validator.isAlphanumeric(data.username)) {
-    res.json(400, {
+    return res.json(400, {
       error: 'Username must contain only alphanumeric characters'
     });
   }
@@ -50,15 +72,32 @@ exports.read = function (req, res, next) {
 
 exports.update = function (req, res, next) {
   var id = req.session.uid,
-      data = req.body.user;
+      data = (req.body ? req.body.user : null);
+
+  if (!data) {
+    return res.json(400, { error: 'Bad request'});
+  }
 
   if (data.changing === 'contact') {
     // Updating contact info.
     User.findById(id, function (err, user) {
       if (err) return next(err);
       if (user) {
-        // 
         delete data.changing;
+        // An empty string is allowed (used to clear record);
+        if (!validator.isEmail(data.email) && data.email !== '') {
+          return res.json(400, { error: 'Invalid email' });
+        }
+        data.cellphone = validator.toTelephone(data.cellphone);
+        // An empty string is allowed (used to clear record);
+        if (!data.cellphone && data.cellphone !== '') {
+          return res.json(400, { error: 'Invalid cellphone number' });
+        }
+
+        if (data.cellphone && data.carrier === 'Choose one') {
+          return res.json(400, { error: 'Must choose a carrier' });
+        }
+
         for (var key in data) {
           user[key] = data[key];
         }
@@ -92,7 +131,7 @@ exports.update = function (req, res, next) {
         });
       } else res.json(401, { error: 'Invalid password' });
     });
-  } else res.json(400, { error: 'Bad Request' });
+  } else res.json(400, { error: 'Bad request' });
 };
 
 exports.delete = function (req, res, next) {

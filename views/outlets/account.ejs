@@ -9,15 +9,15 @@
       You can remove your information by submitting empty forms.
     </p>
     <form role="form" {{action saveContact on="submit"}}>
-      <div class="form-group">
+      <div class="form-group" {{bind-attr class="badEmail:has-error"}}>
         <label class="control-label">Email</label>
         {{input value=email type="email" class="form-control" placeholder="email@example.com"}}
       </div>
-      <div class="form-group">
+      <div class="form-group" {{bind-attr class="badCellphone:has-error"}}>
         <label class="control-label">Cell</label>
         {{input value=cellphone class="form-control" placeholder="123-123-1234"}}
       </div>
-      <div class="form-group">
+      <div class="form-group" {{bind-attr class="noCarrier:has-error"}}>
         <label class="control-label">
           Carrier
         </label>
