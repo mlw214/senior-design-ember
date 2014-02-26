@@ -150,12 +150,12 @@ App.RecordRoute = Ember.Route.extend({
 
 App.AccountRoute = Ember.Route.extend({
   model: function () {
-    /*var cache = this.get('cache');
+    var cache = this.get('cache');
     if (cache) {
       return cache;
     }
-    return Ember.$.getJSON('/users/current');*/
-    return App.UserStore.getCurrentUser();
+    return Ember.$.getJSON('/users/current');
+    //return App.UserStore.getCurrentUser();
   },
   setupController: function (controller, model) {
     controller.set('model', model);
@@ -175,7 +175,7 @@ App.SignoutRoute = Ember.Route.extend({
   }
 });
 
-App.UserStoreObject = Ember.Object.extend({
+/*App.UserStoreObject = Ember.Object.extend({
   cache: null,
   getCurrentUser: function () {
     var cache = this.get('cache'),
@@ -192,18 +192,20 @@ App.UserStoreObject = Ember.Object.extend({
   saveCurrentUser: function () {
     var cache = this.get('cache'),
         self = this;
+
     cache.changing = 'contact';
     return Ember.$.ajax({
       url: '/users/current',
       type: 'put',
       data: { user: cache }
-    }).done(function (response) {
-      self.set('cache', response);
+    }).then(function (response) {
+      self.saveToCache(response);
+      return response;
     });
   }
 });
 
-App.UserStore = App.UserStoreObject.create();
+App.UserStore = App.UserStoreObject.create();*/
 
 Ember.TextField.reopen({
   attributeBindings: ['required', 'autofocus']

@@ -15,6 +15,7 @@ App.IndexRoute = Ember.Route.extend({
 
 App.ResetRoute = Ember.Route.extend({
   setupController: function (controller, model) {
+    controller.set('model', model);
     controller.reset();
   }
 });
@@ -37,13 +38,12 @@ App.Router.reopen({
 });
 
 Ember.TextField.reopen({
-  attributeBindings: ['required', 'autofocus']
+  attributeBindings: ['required', 'autofocus'],
 });
 
-App.toastrFailCallback = function (jqXHR) {
-  if (jqXHR.responseJSON) {
-    toastr.error(jqXHR.responseJSON.error, 'Error');
-  } else {
-    toastr.error('The server exploded!', 'Error');
+App.UsernameInput = Ember.TextField.extend({
+  focusOut: function (evt) {
+  },
+  focusIn: function (evt) {
   }
-};
+});

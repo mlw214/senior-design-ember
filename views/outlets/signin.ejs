@@ -1,11 +1,12 @@
-<h1 class="text-center">Please Sign in</h1>
+<h1 class="text-center">Remote Lab Sensors</h1>
+<h2 class="text-center">Please Sign in</h2>
 <form role="form" {{action signin on="submit"}}>
   <div class="form-group">
     <label for="username" class="control-label">
       Username
     </label>
     <!--<input type="text" class="form-control" id="username" name="user[name]" required autofocus>-->
-    {{input value=username class="form-control" id="username" autofocus="autofocus"}}
+    {{input value=username class="form-control" id="username" autofocus="autofocus" required="required"}}
   </div>
   <div class="form-group">
     <label for="password" class="control-label">
@@ -14,5 +15,8 @@
     <!--<input type="password" class="form-control" id="password" name="user[pass]" required>-->
     {{input type="password" value=password class="form-control" id="password" required="required"}}
   </div>
+  {{#if responseError}}
+    <div class="alert alert-danger">{{errorMsg}}</div>
+  {{/if}}
   {{input class="btn btn-success" type="submit" value="Sign in" id="signin"}}
 </form>

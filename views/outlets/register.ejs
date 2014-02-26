@@ -1,42 +1,46 @@
-<h1 class="text-center">Register an Account</h1>
+<h1 class="text-center">Remote Lab Sensors</h1>
+<h2 class="text-center">Register an Account</h2>
 <form role="form" {{action register on="submit"}}>
-  <div class="form-group">
-    <label for="username" class="control-label">
-      Username
-    </label>
-    <!--<input type="text" class="form-control" id="username" name="user[name]" required autofocus>-->
-    {{input value=username class="form-control" id="username" autofocus="autofocus" required="required"}}
+  <div class="form-group" {{bind-attr class="badUsername:has-error"}}>
+    <label for="username" class="control-label">Username</label>
+    {{view App.UsernameInput value=username class="form-control" id="username" autofocus="autofocus" required="required"}}
+    {{#if badUsername}}
+      <span class="help-block">
+        <small>{{badUsernameMsg}}</small>
+      </span>
+    {{/if}}
   </div>
-  <div class="form-group">
-    <label for="password" class="control-label">
-      Password
-    </label>
-    <!--<input type="password" class="form-control" id="password" name="user[pass]" required>-->
+  <div class="form-group" {{bind-attr class="badPassword:has-error"}}>
+    <label for="password" class="control-label">Password</label>
     {{input type="password" value=password class="form-control" id="password" required="required"}}
+    {{#if badPassword}}
+      <span class="help-block">
+        <small>{{badPasswordMsg}}</small>
+      </span>
+    {{else}}
+      <span class="help-block">
+        <small>Password must be at least 8 characters long</small>
+      </span>
+    {{/if}}
   </div>
-  <div class="form-group">
-    <label class="control-label" for="confirm">
-      Confirm Password
-    </label>
-    <!--<input type="password" class="form-control" id="confirm" name="user[confirm]" required>-->
+  <div class="form-group" {{bind-attr class="doNotMatch:has-error"}}>
+    <label class="control-label" for="confirm">Confirm Password</label>
     {{input type="password" value=confirm class="form-control" id="confirm" required="required"}}
-    <span class="help-block">
-      <small>
-        Password must be at least 8 characters long.
-      </small>
-    </span>
+    {{#if doNotMatch}}
+      <span class="help-block">
+        <small>{{doNotMatchMsg}}</small>
+      </span>
+    {{/if}}
   </div>
   <div class="form-group">
-    <label class="control-label" for="device-id">
-      Device ID
-    </label>
-    <!--<input type="text" class="form-control" name="id" id="device-id" required>-->
+    <label class="control-label" for="device-id">Device ID</label>
     {{input value=deviceID class="form-control" id="device-id" required="required"}}
     <span class="help-block">
-      <small>
-        Provided with hardware.
-      </small>
+      <small>Provided with hardware</small>
     </span>
   </div>
+  {{#if responseError}}
+    <div class="alert alert-danger">{{errorMsg}}</div>
+  {{/if}}
   {{input class="btn btn-success" type="submit" value="Register" id="register"}}
 </form>

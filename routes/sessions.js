@@ -8,7 +8,7 @@ exports.create = function (req, res, next) {
     return res.json(400, { error: 'Bad request'});
   }
   if (!data.username || !data.password) {
-    return res.json(400, { error: 'Both username and password are required'});
+    return res.json(400, { error: 'Both username and password are required' });
   }
   User.authenticateByUsername(data.username, data.password, 
                               function (err, user) {

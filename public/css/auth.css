@@ -1,0 +1,43 @@
+html,
+body,
+body > .ember-view {
+  height: 100%;
+}
+
+#wrap {
+  min-height: 100%;
+  height: auto;
+  margin: 0 auto -60px;
+  padding: 0 0 60px;
+}
+
+footer {
+  height: 60px;
+}
+
+#copyright {
+  border-top: 1px solid #e5e5e5;
+}
+
+#copyright p {
+  margin-top: 20px;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  section {
+    margin-left: 150px;
+    margin-right: 150px;
+  }
+}
+
+@media (min-width: 992px) {
+  section {
+    margin-right: 225px;
+    margin-left: 225px;
+    margin-bottom: 20px;
+  }
+}
+
+section h1 {
+  margin-bottom: 20px;
+}

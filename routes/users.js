@@ -43,21 +43,28 @@ exports.create = function (req, res, next) {
   }
   if (!validator.isAlphanumeric(data.username)) {
     return res.json(400, {
-      error: 'Username must contain only alphanumeric characters'
+      error: 'Username must contain only alphanumeric characters',
+      field: 'username'
     });
   }
   var error = checkPassword(data.password, data.confirm);
   if (error) {
-    res.json(error.errorCode, { error: error.message });
+    return res.json(error.errorCode, {
+      error: error.message,
+      field: error.field
+    });
   }
   User.newInstance(data.username, data.password, function (err, user) {
     if (err) return next(err);
     if (user) {
       user.save(function (err, prod, num) {
         if (err) return next(err);
-        res.send(200, 'Registration successful');
+        res.send(200);
       });
-    } else res.json(400, { error: 'Username already taken' });
+    } else res.json(400, {
+      error: 'Username already taken',
+      field: 'username'
+    });
   });
 };
 
@@ -86,16 +93,22 @@ exports.update = function (req, res, next) {
         delete data.changing;
         // An empty string is allowed (used to clear record);
         if (!validator.isEmail(data.email) && data.email !== '') {
-          return res.json(400, { error: 'Invalid email' });
+          return res.json(400, { error: 'Invalid email', field: 'email' });
         }
         data.cellphone = validator.toTelephone(data.cellphone);
         // An empty string is allowed (used to clear record);
         if (!data.cellphone && data.cellphone !== '') {
-          return res.json(400, { error: 'Invalid cellphone number' });
+          return res.json(400, {
+            error: 'Invalid cellphone number',
+            field: 'cellphone'
+          });
         }
 
         if (data.cellphone && data.carrier === 'Choose one') {
-          return res.json(400, { error: 'Must choose a carrier' });
+          return res.json(400, {
+            error: 'No cellphone carrier chosen',
+            field: 'carrier'
+          });
         }
 
         for (var key in data) {
@@ -116,20 +129,35 @@ exports.update = function (req, res, next) {
     // Updating password.
     var error = checkPassword(data.newPassword, data.confirmPassword);
     if (error) {
-      return res.json(error.errorCode, { error: error.message });
+      return res.json(error.errorCode, {
+        error: error.message,
+        field: error.field
+      });
     }
     User.authenticateById(id, data.oldPassword, function (err, user) {
       if (err) return next(err);
       if (user) {
-        password.encrypt(data.newPassword, function (err, hash) {
+        password.compare(data.newPassword, user.password, function (err, same) {
           if (err) return next(err);
-          user.password = hash;
-          user.save(function (err) {
+          if (same) {
+            return res.json(400, {
+              error: 'New password is the same as the old one',
+              field: 'password'
+            });
+          }
+          password.encrypt(data.newPassword, function (err, hash) {
             if (err) return next(err);
-            res.send(200);
+            user.password = hash;
+            user.save(function (err) {
+              if (err) return next(err);
+              res.send(200);
+            });
           });
         });
-      } else res.json(401, { error: 'Invalid password' });
+      } else res.json(401, {
+        error: 'Invalid password',
+        field: 'oldPassword'
+      });
     });
   } else res.json(400, { error: 'Bad request' });
 };

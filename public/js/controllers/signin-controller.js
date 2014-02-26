@@ -3,7 +3,9 @@ App.SigninController = Ember.Controller.extend({
   reset: function () {
     this.setProperties({
       username: '',
-      password: ''
+      password: '',
+      errorMsg: '',
+      responseError: false
     });
   },
 
@@ -11,11 +13,20 @@ App.SigninController = Ember.Controller.extend({
     signin: function () {
       var data = this.getProperties('username', 'password'),
           self = this;
-      toastr.clear();
+
+      this.set('responseError', false);
+
       Ember.$.post('/sessions', data).done(function (response) {
         localStorage.token = response.token;
         location.href = 'http://' + window.location.host;
-      }).fail();
+      }).fail(function (jqXHR) {
+        if (jqXHR.responseJSON) {
+          self.set('errorMsg', jqXHR.responseJSON.error);
+        } else {
+          self.set('errorMsg', 'The server exploded');
+        }
+        self.set('responseError', true);
+      });
     }
   }
 });

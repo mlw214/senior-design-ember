@@ -12,17 +12,33 @@
       <div class="form-group" {{bind-attr class="badEmail:has-error"}}>
         <label class="control-label">Email</label>
         {{input value=email type="email" class="form-control" placeholder="email@example.com"}}
+        {{#if badEmail}}
+          <span class="help-block">
+            <small>{{badEmailMsg}}</small>
+          </span>
+        {{/if}}
       </div>
       <div class="form-group" {{bind-attr class="badCellphone:has-error"}}>
         <label class="control-label">Cell</label>
         {{input value=cellphone class="form-control" placeholder="123-123-1234"}}
+        {{#if badCellphone}}
+          <span class="help-block">
+            <small>{{badCellphoneMsg}}</small>
+          </span>
+        {{/if}}
       </div>
       <div class="form-group" {{bind-attr class="noCarrier:has-error"}}>
-        <label class="control-label">
-          Carrier
-        </label>
+        <label class="control-label">Carrier</label>
         {{view Ember.Select class="form-control" content=carriers value=carrier}}
+        {{#if noCarrier}}
+          <span class="help-block">
+            <small>{{noCarrierMsg}}</small>
+          </span>
+        {{/if}}
       </div>
+      {{#if contactResponseError}}
+        <div class="alert alert-danger">{{contactResponseErrorMsg}}</div>
+      {{/if}}
       {{input class="btn btn-success" type="submit" value="Update"}}
     </form>
   </div> <!-- panel-body -->
@@ -33,24 +49,40 @@
   </div>
   <div class="panel-body">
     <form role="form" {{action savePassword on="submit"}}>
-      <div class="form-group" {{bind-attr class="failed:has-error"}}>
-        <label class="control-label">
-          Old Password
-        </label>
+      <div class="form-group" {{bind-attr class="failedChange:has-error"}}>
+        <label class="control-label">Old Password</label>
         {{input value=oldPassword type="password" class="form-control" placeholder="Your old password" required="required"}}
+        {{#if failedChange}}
+          <span class="help-block">
+            <small>{{failedChangeMsg}}</small>
+          </span>
+        {{/if}}
       </div>
-      <div class="form-group" {{bind-attr class="invalid:has-error"}}>
-        <label class="control-label">
-          New Password
-        </label>
+      <div class="form-group" {{bind-attr class="badPassword:has-error"}}>
+        <label class="control-label">New Password</label>
         {{input value=newPassword type="password" class="form-control" placeholder="Your new password" required="required"}}
+        {{#if badPassword}}
+          <span class="help-block">
+            <small>{{badPasswordMsg}}</small>
+          </span>
+        {{else}}
+          <span class="help-block">
+            <small>Password must be at least 8 characters long</small>
+          </span>
+        {{/if}}
       </div>
-      <div class="form-group" {{bind-attr class="invalid:has-error"}}>
-        <label class="control-label">
-          Confirm New Password
-        </label>
+      <div class="form-group" {{bind-attr class="doNotMatch:has-error"}}>
+        <label class="control-label">Confirm New Password</label>
         {{input value=confirmPassword type="password" class="form-control" placeholder="Confirm new password" required="required"}}
+        {{#if doNotMatch}}
+          <span class="help-block">
+            <small>{{doNotMatchMsg}}</small>
+          </span>
+        {{/if}}
       </div>
+      {{#if pwResponseError}}
+        <div class="alert alert-danger">{{pwResponseErrorMsg}}</div>
+      {{/if}}
       {{input class="btn btn-success" type="submit" value="Update"}}
     </form>
   </div>
@@ -62,12 +94,18 @@
   <div class="panel-body">
     <p>Delete your account and all data related to it. There is no means of recovery.</p>
     <form id="delete-form" {{action deleteAccount on="submit"}}>
-      <div class="form-group">
-        <label class="control-label">
-          Password
-        </label>
+      <div class="form-group" {{bind-attr class="failedDelete:has-error"}}>
+        <label class="control-label">Password</label>
         {{input value=password type="password" class="form-control" placeholder="Your password" required="required"}}
+        {{#if failedDelete}}
+          <span class="help-block">
+            <small>{{failedDeleteMsg}}</small>
+          </span>
+        {{/if}}
       </div>
+      {{#if deleteResponseError}}
+        <div class="alert alert-danger">{{deleteResponseErrorMsg}}</div>
+      {{/if}}
       {{input class="btn btn-danger" type="submit" value="Delete"}}
     </form>
   </div>
