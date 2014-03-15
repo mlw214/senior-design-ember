@@ -12,10 +12,10 @@ var experimentSchema = new mongoose.Schema({
   contact: String,
   description: { type: String, default: '' },
   color: {
-    save: Boolean,
     bound: Boolean,
     auto: Boolean,
-    color: String
+    lower: String,
+    upper: String
   },
   gas: {
     save: Boolean,

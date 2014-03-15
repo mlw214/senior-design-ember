@@ -18,7 +18,7 @@ App.SigninController = Ember.Controller.extend({
 
       Ember.$.post('/sessions', data).done(function (response) {
         localStorage.token = response.token;
-        location.href = 'http://' + window.location.host;
+        location.href = '/';
       }).fail(function (jqXHR) {
         if (jqXHR.responseJSON) {
           self.set('errorMsg', jqXHR.responseJSON.error);

@@ -112,6 +112,10 @@
       <%- include outlets/account %>
     </script>
 
+    <script type="text/x-handlebars" data-template-name="fourOhFour">
+      <%- include outlets/404 %>
+    </script>
+
     <!-- Required JS Libraries -->
     <script src="/js/lib/jquery-1.11.0.min.js"></script>
     <script src="//releases.flowplayer.org/5.4.6/flowplayer.min.js"></script>
@@ -122,7 +126,6 @@
     <script src="/js/lib/validator.min.js"></script>
     <script src="/js/lib/spectrum.js"></script>
     <script>
-      ENV = { FEATURES: { 'query-params-new': true } };
       validator.toTelephone = function (number) {
         var input = this.toString(number), i, result = '',
             pattern = /\s|-|\(|\)/;
@@ -153,6 +156,7 @@
     <script src="/js/controllers/sensors-controller.js"></script>
     <script src="/js/controllers/archive-controller.js"></script>
     <script src="/js/controllers/record-controller.js"></script>
+    <script src="/js/views/download-link.js"></script>
     <script src="/js/views/dropdown-view.js"></script>
     <script src="/js/views/nav-view.js"></script>
     <script src="/js/views/number-field.js"></script>

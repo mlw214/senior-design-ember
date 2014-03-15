@@ -1,18 +1,5 @@
 App.ArchiveIndexController = Ember.ArrayController.extend({
-  queryParams: ['page'],
   page: 1,
-  prevPage: function () {
-    var page = parseInt(this.get('page'), 10);
-    if (page > 1) {
-      return page - 1;
-    } else return 1;
-  }.property('page'),
-  nextPage: function () {
-    var page = parseInt(this.get('page'), 10),
-        pages = this.get('pages');
-    if (page < pages) return page + 1;
-    else return pages;
-  }.property('page', 'pages'),
   atBeginning: function () {
     var page = parseInt(this.get('page'), 10);
     return page <= 1;
@@ -21,5 +8,21 @@ App.ArchiveIndexController = Ember.ArrayController.extend({
     var page = parseInt(this.get('page'), 10),
         pages = this.get('pages');
     return page >= pages;
-  }.property('page', 'pages')
+  }.property('page', 'pages'),
+  loadData: function (page) {
+    var promise = this.store.find('experiment', { page: page });
+    this.set('content', promise);
+  },
+  actions: {
+    prevPage: function () {
+      var page = this.get('page');
+      this.set('page', --page);
+      this.loadData(page);
+    },
+    nextPage: function () {
+      var page = this.get('page');
+      this.set('page', ++page);
+      this.loadData(page);
+    }
+  }
 });

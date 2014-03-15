@@ -53,10 +53,6 @@ class ColorDetector {
                 s = _hsvIm(i, j)[1];
                 v = _hsvIm(i, j)[2];
 
-                totalH += h;
-                totalS += s;
-                totalV += v;
-
                 if (this->lower != NULL && this->upper != NULL) {
                     if (isInRange(h, s, v)) {
                         ++inRangeTotal;
@@ -64,10 +60,6 @@ class ColorDetector {
                 }
             }
         }
-        // Get average.
-        averageH = totalH/(this->area);
-        averageS = totalS/(this->area);
-        averageV = totalV/(this->area);
         if (this->lower != NULL && this->upper != NULL) {
             if (((double)inRangeTotal)/this->area >= this->threshold) {
                 cout << "Exceeded" << endl;
@@ -145,7 +137,7 @@ public:
         while (true) {
             Mat frame;
             (*(this->cap)) >> frame;
-            analyzeFrame(frame);
+            this->analyzeFrame(frame);
             rectangle(frame, this->topLeft, this->bottomRight, color);
             imshow("main", frame);
         }
@@ -175,14 +167,5 @@ public:
             this->upper = NULL;
         }
         pthread_mutex_unlock(&(this->mux));
-    }
-
-    string getAverageHSV() {
-        stringstream temp;
-        pthread_mutex_lock(&(this->mux));
-        temp << "h:" << this->averageH << ";s:" << this->averageS << ";v:"
-            << this->averageV;
-        pthread_mutex_unlock(&(this->mux));
-        return temp.str();
     }
 };

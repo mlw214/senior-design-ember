@@ -1,9 +1,14 @@
 <h1>Create an Experiment</h1>
 <h3>Basic Setup</h3>
 <form role="form" id="basic">
-  <div class="form-group">
+  <div class="form-group" {{bind-attr class="nameError:has-error"}}>
     <label class="control-label">Experiment Name</label>
-    {{input value=name class="form-control" placeholder="Awesome name" required="required" disabled=controllers.application.owner}}
+    {{input value=name class="form-control" placeholder="Awesome name" disabled=controllers.application.owner}}
+    {{#if nameError}}
+      <span class="help-block">
+        <small>{{nameErrorMsg}}</small>
+      </span>
+    {{/if}}
   </div>
   <div class="form-group">
     <label class="control-label">Collection Rate (seconds)</label>
@@ -28,10 +33,8 @@
       {{view App.RadioButton value="both" name="contact" selectionBinding="contact"}} Both
     </label>
   </div>
-</form>
-<h3>Sensor Setup</h3>
-<h4>Gas Temperature Sensor</h4>
-<form role="form" id="gas">
+  <h3>Sensor Setup</h3>
+  <h4>Gas Temperature Sensor</h4>
   <label class="checkbox-inline">
     {{input type="checkbox" checked=gas.save}} Save Readings
   </label>
@@ -41,17 +44,25 @@
   <label class="checkbox-inline">
     {{input type="checkbox" checked=gas.auto disabled=noGasBound}} Auto Cancel
   </label>
-  <div class="form-group" {{bind-attr class="badGasBounds:has-error"}}>
+  <div class="form-group" {{bind-attr class="badGBLower:has-error"}}>
     <label class="control-label">Lower Bound</label>
     {{view App.NumberField value=gas.lower class="form-control" disabled=noGasBound}}
+    {{#if badGBLower}}
+      <span class="help-block">
+        <small>{{badGBLowerMsg}}</small>
+      </span>
+    {{/if}}
   </div>
-  <div class="form-group" {{bind-attr class="badGasBounds:has-error"}}>
+  <div class="form-group" {{bind-attr class="badGBUpper:has-error"}}>
     <label class="control-label">Upper Bound</label>
     {{view App.NumberField value=gas.upper class="form-control" disabled=noGasBound}}
+    {{#if badGBUpper}}
+      <span class="help-block">
+        <small>{{badGBUpperMsg}}</small>
+      </span>
+    {{/if}}
   </div>
-</form>
-<h4>Liquid Temperature Sensor</h4>
-<form role="form" id="liquid">
+  <h4>Liquid Temperature Sensor</h4>
   <label class="checkbox-inline">
     {{input type="checkbox" checked=liquid.save}} Save Readings
   </label>
@@ -61,20 +72,25 @@
   <label class="checkbox-inline">
     {{input type="checkbox" checked=liquid.auto disabled=noLiquidBound}} Auto Cancel
   </label>
-  <div class="form-group" {{bind-attr class="badLiquidBounds:has-error"}}>
+  <div class="form-group" {{bind-attr class="badLBLower:has-error"}}>
     <label class="control-label">Lower Bound</label>
     {{view App.NumberField value=liquid.lower class="form-control" disabled=noLiquidBound}}
+    {{#if badLBLower}}
+      <span class="help-block">
+        <small>{{badLBLowerMsg}}</small>
+      </span>
+    {{/if}}
   </div>
-  <div class="form-group" {{bind-attr class="badLiquidBounds:has-error"}}>
+  <div class="form-group" {{bind-attr class="badLBUpper:has-error"}}>
     <label class="control-label">Upper Bound</label>
     {{view App.NumberField value=liquid.upper class="form-control" disabled=noLiquidBound}}
+    {{#if badLBUpper}}
+      <span class="help-block">
+        <small>{{badLBUpperMsg}}</small>
+      </span>
+    {{/if}}
   </div>
-</form>
-<h4>Color Sensor</h4>
-<form role="form" id="color">
-  <label class="checkbox-inline">
-    {{input type="checkbox" checked=color.save}} Save Readings
-  </label>
+  <h3>Color Detection</h3>
   <label class="checkbox-inline">
     {{input type="checkbox" checked=color.bound}} Use Bounds
   </label>
@@ -82,10 +98,17 @@
     {{input type="checkbox" checked=color.auto disabled=noColorBound}} Auto Cancel
   </label>
   <div class="form-group">
-    <label class="control-label">Color Bound</label>
-    {{input type="color" value=color.color class="form-control" disabled=noColorBound}}
+    <label class="control-label">Lower Bound</label>
+    {{input type="color" value=color.lower class="form-control" disabled=noColorBound}}
+  </div>
+  <div class="form-group">
+    <label class="control-label">Upper Bound</label>
+    {{input type="color" value=color.upper class="form-control" disabled=noColorBound}}
   </div>
 </form>
+{{#if responseError}}
+  <div class="alert alert-danger">{{responseErrorMsg}}</div>
+{{/if}}
 <div id="btns">
   {{#if controllers.application.owner}}
     <button class="btn btn-success btn-lg" {{action "update"}}>Update</button>

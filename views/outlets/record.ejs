@@ -4,8 +4,10 @@
   </div>
   <div class="child" id="right-col">
     <div class="text-right">
-      <button class="btn btn-default btn-sm pager-btn"><span class="glyphicon glyphicon-save"></span></button>
-      <button class="btn btn-default btn-sm pager-btn"><span class="glyphicon glyphicon-trash"></span></button>
+      {{#view App.DownloadLinkView}}
+        <span class="glyphicon glyphicon-save"></span>
+      {{/view}}
+      <button class="btn btn-default btn-sm horz-btn" {{action "delete"}}><span class="glyphicon glyphicon-trash"></span></button>
     </div>
   </div>
 </div>
@@ -34,8 +36,8 @@
 </ul>
 <p><strong>Color</strong></p>
 <ul>
-  <li>Readings Saved: {{yes-no color.save}}</li>
   <li>Bound: {{yes-no color.bound}}</li>
   <li>Auto Cancel: {{#if color.bound}} {{yes-no color.auto}} {{else}} N/A {{/if}}</li>
-  <li>Color: {{#if color.bound}} {{color.color}} {{else}} N/A {{/if}}</li>
+  <li>Lower: {{#if color.bound}} {{color.lower}} {{else}} N/A {{/if}}</li>
+  <li>Upper: {{#if color.bound}} {{color.upper}} {{else}} N/A {{/if}}</li>
 </ul>

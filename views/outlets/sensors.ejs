@@ -24,9 +24,12 @@
     <p>{{a}}</p>
   </div>
   <div class="col-sm-6 col-md-6 col-lg-6">
-    <div class="center">
+    <div class="right">
       <h4>Liquid Temperature (&deg;C)</h4>
       <p>{{l}}</p>
     </div>
   </div>
 </div>
+{{#if controllers.application.alerted}}
+  <div class="alert alert-info">Alerts sent.<button class="btn btn-default btn-xs pull-right" {{action 'resetAlerts'}}>Reset</button></div>
+{{/if}}

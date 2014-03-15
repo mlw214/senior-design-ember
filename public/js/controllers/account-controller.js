@@ -4,7 +4,7 @@ App.AccountController = Ember.ObjectController.extend({
   actions: {
     saveContact: function () {
       var data = this.getProperties('email', 'carrier', 'cellphone'),
-          self = this;
+          self = this, err = false, backup;
 
       this.setProperties({
         badEmail: false,
@@ -18,22 +18,29 @@ App.AccountController = Ember.ObjectController.extend({
       });
 
       // Some basic verification.
-      /*if (!validator.isEmail(data.email) && data.email !== '') {
+      if (!validator.isEmail(data.email) && data.email !== '') {
         this.set('badEmail', true);
         this.set('badEmailMsg', 'Invalid email');
-        return;
+        err = true;
       }
+      // Want to keep a backup of the user input so we can throw an error
+      // if they enter an invalid cellphone number and don't choose a carrier.
+      backup = data.cellphone
       data.cellphone = validator.toTelephone(data.cellphone);
       if (!data.cellphone && data.cellphone !== '') {
         this.set('badCellphone', true);
         this.set('badCellphoneMsg', 'Invalid cellphone number');
-        return;
+        err = true;
       }
-      if (data.cellphone && this.carriers[0] === data.carrier) {
+      // If we were using the new data.cellphone, this would always be false
+      // if the user entered an incorrect number (see above).
+      if (backup && this.carriers[0] === data.carrier) {
         this.set('noCarrier', true);
         this.set('noCarrierMsg', 'No cellphone carrier chosen');
-        return;
-      }*/
+        err = true;
+      }
+
+      if (err) { return; }
 
       data.changing = 'contact';
       Ember.$.ajax({
@@ -44,19 +51,21 @@ App.AccountController = Ember.ObjectController.extend({
         self.set('cache', response);
         toastr.success('Updated contact info', 'Success');
       }).fail(function (jqXHR) {
-        var field;
+        var errors, i;
         if (jqXHR.responseJSON) {
-          if (jqXHR.responseJSON.field) {
-            field = jqXHR.responseJSON.field;
-            if (field === 'email') {
-              self.set('badEmail', true);
-              self.set('badEmailMsg', jqXHR.responseJSON.error);
-            } else if (field === 'cellphone') {
-              self.set('badCellphone', true);
-              self.set('badCellphoneMsg', jqXHR.responseJSON.error);
-            } else if (field === 'carrier') {
-              self.set('noCarrier', true);
-              self.set('noCarrierMsg', jqXHR.responseJSON.error);
+          if (jqXHR.responseJSON.formErrors) {
+            errors = jqXHR.responseJSON.formErrors;
+            for (i = 0; i < errors.length; ++i) {
+              if (errors[i].field === 'email') {
+                self.set('badEmail', true);
+                self.set('badEmailMsg', errors[i].error);
+              } else if (errors[i].field === 'cellphone') {
+                self.set('badCellphone', true);
+                self.set('badCellphoneMsg', errors[i].error);
+              } else if (errors[i].field === 'carrier') {
+                self.set('noCarrier', true);
+                self.set('noCarrierMsg', errors[i].error);
+              }
             }
           } else {
             self.set('contactResponseError', true);
@@ -68,38 +77,11 @@ App.AccountController = Ember.ObjectController.extend({
           self.set('contactResponseErrorMsg', 'The server exploded');
         }
       });
-      /*App.UserStore.saveCurrentUser().then(function (response) {
-        toastr.success('YAY');
-      }).fail(function (jqXHR) {
-        var field;
-        if (jqXHR.responseJSON) {
-          if (jqXHR.responseJSON.field) {
-            field = jqXHR.responseJSON.field;
-            if (field === 'email') {
-              self.set('badEmail', true);
-              self.set('badEmailMsg', jqXHR.responseJSON.error);
-            } else if (field === 'cellphone') {
-              self.set('badCellphone', true);
-              self.set('badCellphoneMsg', jqXHR.responseJSON.error);
-            } else if (field === 'carrier') {
-              self.set('noCarrier', true);
-              self.set('noCarrierMsg', jqXHR.responseJSON.error);
-            }
-          } else {
-            self.set('responseError', true);
-            self.set('responseErrorMsg', jqXHR.responseJSON.error);
-          }
-
-        } else {
-          self.set('responseError', true);
-          self.set('responseErrorMsg', 'The server exploded');
-        }
-      });*/
     },
     savePassword: function () {
       var data = this.getProperties('oldPassword', 'newPassword',
                                     'confirmPassword'),
-          self = this;
+          self = this, err = false;
       data.changing = 'password';
 
       this.setProperties({
@@ -118,16 +100,19 @@ App.AccountController = Ember.ObjectController.extend({
         this.set('badPassword', true);
         this.set('badPasswordMsg',
                   'Password must be at least 8 characters long');
-        return;
-      } else if (data.newPassword !== data.confirmPassword) {
-        this.set('doNotMatch', true);
-        this.set('doNotMatchMsg', 'Passwords do not match');
-        return;
+        err = true;
       } else if (data.oldPassword === data.newPassword) {
         this.set('badPassword', true);
         this.set('badPasswordMsg', 'New password is the same as the old one');
-        return;
+        err = true;
       }
+      if (data.newPassword !== data.confirmPassword) {
+        this.set('doNotMatch', true);
+        this.set('doNotMatchMsg', 'Passwords do not match');
+        err = true;
+      }
+
+      if (err) { return; }
 
       Ember.$.ajax({
         type: 'put',
@@ -139,19 +124,21 @@ App.AccountController = Ember.ObjectController.extend({
         self.set('confirmPassword', '');
         toastr.success('Updated password', 'Success');
       }).fail(function (jqXHR) {
-        var field;
+        var errors, i;
         if (jqXHR.responseJSON) {
-          if (jqXHR.responseJSON.field) {
-            var field = jqXHR.responseJSON.field;
-            if (field === 'oldPassword') {
-              self.set('failedChange', true);
-              self.set('failedChangeMsg', jqXHR.responseJSON.error);
-            } else if (field === 'password') {
-              self.set('badPassword', true);
-              self.set('badPasswordMsg', jqXHR.responseJSON.error);
-            } else if (field === 'confirm') {
-              self.set('doNotMatch', true);
-              self.set('doNotMatchMsg', jqXHR.responseJSON.error);
+          if (jqXHR.responseJSON.formErrors) {
+            errors = jqXHR.responseJSON.formErrors;
+            for (i = 0; i < errors.length; ++i) {
+              if (errors[i].field === 'oldPassword') {
+                self.set('failedChange', true);
+                self.set('failedChangeMsg', errors[i].error);
+              } else if (errors[i].field === 'password') {
+                self.set('badPassword', true);
+                self.set('badPasswordMsg', errors[i].error);
+              } else if (errors[i].field === 'confirm') {
+                self.set('doNotMatch', true);
+                self.set('doNotMatchMsg', errors[i].error);
+              }
             }
           } else {
             self.set('pwResponseError', true);
@@ -176,8 +163,8 @@ App.AccountController = Ember.ObjectController.extend({
         url: '/users/current',
         data: { user: password }
       }).done(function (response) {
-
-      }).fail(function (response) {
+        location.href = '/auth/#signin';
+      }).fail(function (jqXHR) {
         var field;
         if (jqXHR.responseJSON) {
           if (jqXHR.responseJSON.field) {

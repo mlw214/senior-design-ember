@@ -12,9 +12,10 @@ exports.create = function (req, res, next) {
   }
   User.authenticateByUsername(data.username, data.password, 
                               function (err, user) {
-    if (err) return next(err);
+    if (err) { return next(err); }
     if (user) {
       req.session.regenerate(function (err) {
+        if (err) { return next(err); }
         req.session.uid = user.id;
         req.session.username = user.username;
         req.session.contactInfo = {
@@ -32,7 +33,7 @@ exports.create = function (req, res, next) {
 
 exports.delete = function (req, res, next) {
   req.session.destroy(function (err) {
-    if (err) return next(err);
+    if (err) { return next(err); }
     res.send();
   });
 };

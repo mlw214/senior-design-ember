@@ -10,9 +10,11 @@ App.ApplicationRoute = Ember.Route.extend({
     return Ember.$.getJSON('/status');
   },
   setupController: function (controller, model) {
-    controller.set('model', model);
     var client = new Faye.Client('http://' + window.location.host + '/faye'),
-        sensorCont = this.controllerFor('sensors');
+        self = this,
+        sensorCont = this.controllerFor('sensors'),
+        subscription;
+    controller.set('model', model);
     controller.set('faye', client);
     client.subscribe('/data', function (message) {
       sensorCont.setProperties({
@@ -31,14 +33,20 @@ App.ApplicationRoute = Ember.Route.extend({
         controller.set('canceller', message.canceller);
       }
     });
-    client.subscribe('/alert', function (message) {
-      console.log(message);
-    });
+    if (model.owner) {
+      // Propagate changes here to experiment-controller.js.
+      subscription = client.subscribe('/alert', function (message) {
+        App.alertSubHandler.call(self, message, controller);
+      });
+      controller.set('alertSub', subscription);
+    }
   }
 });
 
 App.ApplicationController = Ember.ObjectController.extend({
   modelIdCount: -1,
+  exceededCountGas: 0,
+  exceededCountLiquid: 0,
   incrementAndGetId: function () {
     var id = this.get('modelIdCount');
     this.set('modelIdCount', ++id);
@@ -80,6 +88,7 @@ App.Router.map(function () {
   });
   this.resource('account');
   this.route('signout');
+  this.route('fourOhFour', { path: '*path' });
 });
 
 // No index page - redirect to experiment page.
@@ -124,18 +133,33 @@ App.SensorsRoute = Ember.Route.extend();
 App.ArchiveRoute = Ember.Route.extend();
 
 App.ArchiveIndexRoute = Ember.Route.extend({
-  model: function (params) {
-    return this.store.find('experiment', { page: params.page });
+
+  model: function (params, transition) {
+    var archiveCont = this.controllerFor('archiveIndex'),
+        appCont = this.controllerFor('application'),
+        page = archiveCont.get('page'),
+        pages = archiveCont.get('pages'),
+        id = appCont.get('modelIdCount');
+
+    if (pages) {
+      if (page !== 1 && page === pages) {
+        exps = this.store.all('experiment');
+        exps = exps.get('content');
+        for (i = 0; i < exps.length; ++i) {
+          if (exps[i].get('id') == id) { exps.splice(i, 1); }
+        }
+        if (((pages * 2) - exps.length) === 25) {
+          archiveCont.set('page', --page);
+        }
+      }
+    }
+
+    return this.store.find('experiment', { page: page });
   },
   setupController: function (controller, model) {
     controller.set('model', model);
     var pages = this.store.metadataFor('experiment').pages;
     controller.set('pages', pages);
-  },
-  actions: {
-    queryParamsDidChange: function () {
-      this.refresh();
-    }
   }
 });
 
@@ -155,7 +179,6 @@ App.AccountRoute = Ember.Route.extend({
       return cache;
     }
     return Ember.$.getJSON('/users/current');
-    //return App.UserStore.getCurrentUser();
   },
   setupController: function (controller, model) {
     controller.set('model', model);
@@ -175,38 +198,6 @@ App.SignoutRoute = Ember.Route.extend({
   }
 });
 
-/*App.UserStoreObject = Ember.Object.extend({
-  cache: null,
-  getCurrentUser: function () {
-    var cache = this.get('cache'),
-        self = this;
-    if (cache) {
-      return cache;
-    } else {
-      return Ember.$.getJSON('/users/current').then(function (response) {
-        self.set('cache', response);
-        return response;
-      });
-    }
-  },
-  saveCurrentUser: function () {
-    var cache = this.get('cache'),
-        self = this;
-
-    cache.changing = 'contact';
-    return Ember.$.ajax({
-      url: '/users/current',
-      type: 'put',
-      data: { user: cache }
-    }).then(function (response) {
-      self.saveToCache(response);
-      return response;
-    });
-  }
-});
-
-App.UserStore = App.UserStoreObject.create();*/
-
 Ember.TextField.reopen({
   attributeBindings: ['required', 'autofocus']
 });
@@ -219,15 +210,65 @@ App.toastrFailCallback = function (jqXHR) {
   }
 };
 
+App.alertSubHandler = function (message, appCont) {
+  var sub, id, rec, gasSpan$, liquidSpan$, gasCount, liquidCount, html;
+  console.log(message);
+  if (message.hasOwnProperty('gas')) {
+    gasSpan$ = $('#count-gas');
+    gasCount = appCont.get('exceededCountGas') + 1;
+    appCont.set('exceededCountGas', gasCount);
+    if (gasSpan$.length) {
+      html = gasCount + ' times since signin';
+      gasSpan$.html(html);
+    } else {
+      html = '<span id="count-gas">' + gasCount + 
+            ' time since signin</span>';
+      toastr.warning(html, 'Gas Bound Exceeded',
+                      { timeOut: 0, extendedTimeOut: 0 });
+    }
+  }
+  if (message.hasOwnProperty('liquid')) {
+    liquidSpan$ = $('#count-liquid');
+    liquidCount = appCont.get('exceededCountLiquid') + 1;
+    appCont.set('exceededCountLiquid', liquidCount);
+    if (liquidSpan$.length) {
+      html = liquidCount + ' times since signin'
+      liquidSpan$.html(html);
+    } else {
+      html = '<span id="count-liquid">' + liquidCount +
+            ' time since signin</span>';
+      toastr.warning(html, 'Liquid Bound Exceeded',
+                      { timeOut: 0, extendedTimeOut: 0 });
+    }
+  }
+  if (message.hasOwnProperty('alerted')) {
+    appCont.set('alerted', message.alerted);
+  }
+  if (message.hasOwnProperty('cancelled')) {
+    if (message.cancelled) {
+      toastr.warning('Experiment cancelled', 'Alert');
+      appCont.setProperties({
+        owner: false,
+        alerted: false,
+        exceededCountGas: 0,
+        exceededCountLiquid: 0
+      });
+      sub = appCont.get('alertSub');
+      sub.cancel();
+      id = appCont.incrementAndGetId();
+      rec = self.store.createRecord('experiment', { id: id });
+      self.set('content', rec);
+    }
+  }
+};
+
 Ember.Handlebars.helper('format-date', function (date) {
   if (date) {
     return moment(date).format('MMM Do YYYY, h:mm a');
-  } else {
-    return 'Ongoing';
-  }
+  } else { return 'Ongoing'; }
 });
 
 Ember.Handlebars.helper('yes-no', function (bool) {
-  if (bool) return 'Yes';
-  else return 'No';
+  if (bool) { return 'Yes'; }
+  else { return 'No'; }
 });

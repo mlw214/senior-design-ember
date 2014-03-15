@@ -22,6 +22,15 @@ App.SensorsController = Ember.Controller.extend({
         type: 'put',
         data: { relay: state }
       }).fail(App.toastrFailCallback);
+    },
+    resetAlerts: function () {
+      var self = this;
+      Ember.$.get('reset-alerts').then(function (response) {
+        console.log(response);
+        if (response.reset) {
+          self.set('controllers.application.alerted', false);
+        }
+      });
     }
   }
 });

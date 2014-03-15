@@ -43,11 +43,6 @@ void* command_loop(void* ptr) {
                 }
             } else if (first.compare("clear") == 0) {
                 det->clearBounds();
-            } else if (first.compare("average") == 0) {
-                string avg = det->getAverageHSV();
-                pthread_mutex_lock(&mux);
-                cout << avg << endl;
-                pthread_mutex_unlock(&mux);
             }
         }
         delete args;

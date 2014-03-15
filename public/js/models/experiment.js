@@ -28,10 +28,10 @@ App.ColorTransform = DS.Transform.extend({
   serialize: function (value) {
     if (value) {  
       return {
-        save: value.save,
         bound: value.bound,
         auto: value.auto,
-        color: value.color
+        lower: value.lower,
+        upper: value.upper
       };
     }
     return null;
@@ -39,10 +39,10 @@ App.ColorTransform = DS.Transform.extend({
   deserialize: function (value) {
     if (value) {  
       return {
-        save: value.save,
         bound: value.bound,
         auto: value.auto,
-        color: value.color
+        lower: value.lower,
+        upper: value.upper
       };
     }
     return null;
@@ -77,10 +77,10 @@ App.Experiment = DS.Model.extend({
   }),
   color: DS.attr('color', {
     defaultValue: {
-      save: false,
       bound: false,
       auto: false,
-      color: '#e5e5e5'
+      lower: '#e5e5e5',
+      upper: '#e7e7e7'
     }
   })
 });

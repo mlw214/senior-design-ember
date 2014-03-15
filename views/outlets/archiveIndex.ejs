@@ -4,12 +4,13 @@
   </div>
   <div class="child" id="right-col">
     <div class="text-right">
-      {{#link-to 'archive' (query-params page=prevPage) class="btn btn-default btn-sm pager-btn" role="button" classBinding="atBeginning:disabled"}}
-      <span class="glyphicon glyphicon-chevron-left"></span>
-      {{/link-to}}
-      {{#link-to 'archive' (query-params page=nextPage) class="btn btn-default btn-sm pager-btn" role="button" classBinding="atEnd:disabled"}}
-      <span class="glyphicon glyphicon-chevron-right"></span>
-      {{/link-to}}
+      <span><strong>({{page}} of {{pages}})</strong></span>
+      <button class="btn btn-default btn-sm pager-btn" role="button" {{bind-attr disabled=atBeginning}} {{action 'prevPage'}}>
+        <span class="glyphicon glyphicon-chevron-left"></span>
+      </button>
+      <button class="btn btn-default btn-sm pager-btn" role="button" {{bind-attr disabled=atEnd}} {{action 'nextPage'}}>
+        <span class="glyphicon glyphicon-chevron-right"></span>
+      </button>
     </div>
   </div>
 </div>
@@ -18,8 +19,7 @@
     {{#unless isNew}}
       {{#link-to "record" id class="list-group-item"}}
         <h4 class="list-group-item-heading">Name: {{name}}</h4>
-        <p class="list-group-item-text">Start: {{format-date start}}</p>
-        <p class="list-group-item-text">Stop: {{format-date stop}}</p>
+        <p class="list-group-item-text">Runtime: {{format-date start}} to {{format-date stop}}</p>
       {{/link-to}}
     {{/unless}}
   {{/each}}

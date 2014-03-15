@@ -25,6 +25,10 @@ footer {
   margin-top: 20px;
 }
 
+section {
+  margin-bottom: 20px;
+}
+
 @media (min-width: 768px) and (max-width: 991px) {
   section {
     padding-left: 50px;
@@ -46,10 +50,6 @@ section h1 {
 /* End application CSS */
 
 /* Start #experiment CSS */
-
-#btns {
-  margin-bottom: 20px;
-}
 
 /* End #experiment CSS */
 
@@ -85,7 +85,7 @@ section h1 {
   display: table-cell;
 }
 
-.pager-btn {
+.horz-btn {
   margin-bottom: 20px;
 }
 
@@ -94,19 +94,3 @@ section h1 {
 }
 
 /* End #archive CSS */
-
-/* Start #register CSS */
-
-#register {
-  margin-bottom: 20px;
-}
-
-/* End #register CSS */
-
-/* Start #signin CSS */
-
-#signin {
-  margin-bottom: 20px;
-}
-
-/* End #signin CSS */

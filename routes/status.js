@@ -4,7 +4,8 @@ exports.get = function (req, res) {
   var experiment = handler.getExperiment(),
       relay = handler.getRelayStatus(),
       canceller = handler.getCancellerStatus();
-  var status = { relay: relay, canceller: canceller };
+  var status = { relay: relay, canceller: canceller};
+  status.alerted = handler.alertsSent();
   if (experiment) {
     status.running = true;
     if (experiment.owner === req.session.username) {

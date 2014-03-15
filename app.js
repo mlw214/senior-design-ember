@@ -17,7 +17,7 @@ var express = require('express'),
     users = require('./routes/users'),
     authRoute = require('./routes/auth'),
     experiments = require('./routes/experiments'),
-    arduinoRoute = require('./routes/arduino'),
+    handlerRoute = require('./routes/hardware-interface'),
 // Middleware modules.
     verifyToken = require('./lib/middleware/verify-token'),
     auth = require('./lib/middleware/authorization'),
@@ -64,7 +64,7 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
-app.get('/', auth.protectIndex(), routes.index);
+app.get('/', auth.hasSession(), routes.index);
 app.get('/auth', authRoute.page);
 
 // Sessions.
@@ -74,20 +74,25 @@ app.delete('/sessions',
             auth.compareSessionAndToken(),
             sessions.delete);
 
-// Arduino.
+// Hardware interfacing.
 app.get('/status',
         verifyToken(),
         auth.compareSessionAndToken(),
         status.get);
 
+app.get('/reset-alerts',
+        verifyToken(),
+        auth.compareSessionAndToken(),
+        handlerRoute.resetAlerts);
+
 app.put('/relay',
         verifyToken(),
         auth.compareSessionAndToken(),
-        arduinoRoute.relay);
+        handlerRoute.relay);
 app.put('/canceller',
         verifyToken(),
         auth.compareSessionAndToken(),
-        arduinoRoute.canceller);
+        handlerRoute.canceller);
 
 // Users.
 app.post('/users', users.create);
@@ -122,8 +127,7 @@ app.get('/experiments/:id',
         auth.compareSessionAndToken(),
         experiments.read);
 app.get('/experiments/:id/download',
-        verifyToken(),
-        auth.compareSessionAndToken(),
+        auth.hasSession(),
         experiments.download);
 app.put('/experiments/:id',
         verifyToken(),
@@ -133,6 +137,11 @@ app.delete('/experiments/:id',
             verifyToken(),
             auth.compareSessionAndToken(),
             experiments.delete);
+
+// Handle 404s
+app.use(function (req, res, next) {
+  res.send(404, 'Page not found');
+});
 
 
 // Test

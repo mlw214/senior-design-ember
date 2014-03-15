@@ -21,7 +21,7 @@ App.RegisterController = Ember.Controller.extend({
   actions: {
     register: function () {
       var data = this.getProperties('username', 'password', 'confirm', 'deviceID'),
-          self = this;
+          self = this, err = false;
 
       this.setProperties({
         badUsernameMsg: '',
@@ -37,40 +37,45 @@ App.RegisterController = Ember.Controller.extend({
         this.set('badUsername', true);
         this.set('badUsernameMsg',
                   'Username can contain only Alphanumeric characters');
-        return;
+        err = true;
       }
       if (data.password.length < 8) {
         this.set('badPassword', true);
         this.set('badPasswordMsg',
                   'Password must be at least 8 characters long');
-        return;
+        err = true;
       }
       if (data.password !== data.confirm) {
         this.set('doNotMatch', true);
         this.set('doNotMatchMsg', 'Passwords do not match');
-        return;
+        err = true;
       }
+      if (err) { return; }
       Ember.$.post('/users', data).done(function (response) {
         self.set('justCreated', true);
         self.transitionToRoute('signin');
       }).fail(function (jqXHR) {
-        var field;
+        var errors, i;
         if (jqXHR.responseJSON) {
-          if (jqXHR.responseJSON.field) {
-            field = jqXHR.responseJSON.field;
-            if (field === 'username') {
-              self.set('badUsername', true);
-              self.set('badUsernameMsg', jqXHR.responseJSON.error);
-            } else if (field === 'password') {
-              self.set('badPasswordMsg', true);
-              self.set('badPasswordMsg', jqXHR.responseJSON.error);
-            } else if (field === 'confirm') {
-              self.set('doNotMatch', true);
-              self.set('doNotMatchMsg', jqXHR.responseJSON.error);
+          if (jqXHR.responseJSON.formErrors) {
+            errors = jqXHR.responseJSON.formErrors;
+            console.log(errors);
+            for (var i = 0; i < errors.length; ++i) {
+              if (errors[i].field === 'username') {
+                self.set('badUsername', true);
+                self.set('badUsernameMsg', errors[i].error);
+              } else if (errors[i].field === 'password') {
+                console.log('password');
+                self.set('badPassword', true);
+                self.set('badPasswordMsg', errors[i].error);
+              } else if (errors[i].field === 'confirm') {
+                self.set('doNotMatch', true);
+                self.set('doNotMatchMsg', errors[i].error);
+              }
             }
           } else {
-            self.set('errorMsg', jqXHR.responseJSON.error);
             self.set('responseError', true);
+            self.set('errorMsg', jqXHR.responseJSON.error);
           }
         } else {
           self.set('errorMsg', 'The server exploded!');
