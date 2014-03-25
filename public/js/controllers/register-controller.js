@@ -10,27 +10,31 @@ App.RegisterController = Ember.Controller.extend({
       badUsernameMsg: '',
       badPasswordMsg: '',
       doNotMatchMsg: '',
+      badDeviceIdMsg: '',
       justCreated: false,
       badUsername: false,
       badPassword: false,
       doNotMatch: false,
+      badDeviceId: false,
       responseError: false
     });
   },
 
   actions: {
     register: function () {
-      var data = this.getProperties('username', 'password', 'confirm', 'deviceID'),
+      var data = this.getProperties('username', 'password', 'confirm', 'deviceId'),
           self = this, err = false;
 
       this.setProperties({
         badUsernameMsg: '',
         badPasswordMsg: '',
         doNotMatchMsg: '',
+        badDeviceIdMsg: '',
         badUsername: false,
         badPassword: false,
         doNotMatch: false,
-        responseError: false
+        responseError: false,
+        badDeviceId: false
       });
 
       if (!validator.isAlphanumeric(data.username)) {
@@ -50,7 +54,7 @@ App.RegisterController = Ember.Controller.extend({
         this.set('doNotMatchMsg', 'Passwords do not match');
         err = true;
       }
-      if (err) { return; }
+      if (err) return;
       Ember.$.post('/users', data).done(function (response) {
         self.set('justCreated', true);
         self.transitionToRoute('signin');
@@ -59,7 +63,6 @@ App.RegisterController = Ember.Controller.extend({
         if (jqXHR.responseJSON) {
           if (jqXHR.responseJSON.formErrors) {
             errors = jqXHR.responseJSON.formErrors;
-            console.log(errors);
             for (var i = 0; i < errors.length; ++i) {
               if (errors[i].field === 'username') {
                 self.set('badUsername', true);
@@ -71,6 +74,9 @@ App.RegisterController = Ember.Controller.extend({
               } else if (errors[i].field === 'confirm') {
                 self.set('doNotMatch', true);
                 self.set('doNotMatchMsg', errors[i].error);
+              } else if (errors[i].field === 'deviceId') {
+                self.set('badDeviceId', true);
+                self.set('badDeviceIdMsg', errors[i].error);
               }
             }
           } else {

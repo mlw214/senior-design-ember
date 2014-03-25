@@ -37,6 +37,7 @@
 <p><strong>Color</strong></p>
 <ul>
   <li>Bound: {{yes-no color.bound}}</li>
+  <li>Bound Type: {{#if color.bound}} {{expand-boundType color.boundType}} {{else}} N/A {{/if}}</li>
   <li>Auto Cancel: {{#if color.bound}} {{yes-no color.auto}} {{else}} N/A {{/if}}</li>
   <li>Lower: {{#if color.bound}} {{color.lower}} {{else}} N/A {{/if}}</li>
   <li>Upper: {{#if color.bound}} {{color.upper}} {{else}} N/A {{/if}}</li>

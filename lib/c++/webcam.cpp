@@ -29,7 +29,7 @@ void* command_loop(void* ptr) {
         vector<string> *args = parse_string(input);
         if (args->size() > 0) {
             string first = (*args)[0];
-            if (first.compare("set") == 0) {
+            if (first.compare("set-bounds") == 0) {
                 if (args->size() != 7) {
                     cerr << "Bad input" << endl;
                 } else {
@@ -41,8 +41,10 @@ void* command_loop(void* ptr) {
                     int v2 = atoi((*args)[6].c_str());
                     det->setBounds(h1, s1, v1, h2, s2, v2);
                 }
-            } else if (first.compare("clear") == 0) {
+            } else if (first.compare("clear-bounds") == 0) {
                 det->clearBounds();
+            } else if (first.compare("set-comparison") == 0) {
+                det->setCheckInBounds(atoi((*args)[1].c_str()));
             }
         }
         delete args;

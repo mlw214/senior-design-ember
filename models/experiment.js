@@ -9,10 +9,12 @@ var experimentSchema = new mongoose.Schema({
   stop: { type: Date, default: null },
   cancelled: Boolean,
   rate: Number,
+  private: Boolean,
   contact: String,
   description: { type: String, default: '' },
   color: {
     bound: Boolean,
+    boundType: String,
     auto: Boolean,
     lower: String,
     upper: String

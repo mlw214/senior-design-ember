@@ -21,9 +21,12 @@ var express = require('express'),
 // Middleware modules.
     verifyToken = require('./lib/middleware/verify-token'),
     auth = require('./lib/middleware/authorization'),
+    errorHandler = require('./lib/middleware/error-handling'),
+
 // Other modules.
     User = require('./models/user'),
-    handler = require('./lib/hardware-interface');
+    handler = require('./lib/hardware-interface'),
+    secrets = require('./security/secret');
 
 var app = express(),
     server = http.createServer(app),
@@ -36,7 +39,11 @@ var app = express(),
         port: 6379
       }
     }),
-    RedisStore = connectRedis(express);
+    RedisStore = connectRedis(express),
+    store = new RedisStore({
+      host: 'localhost',
+      port: 6379,
+    });
 mongoose.connect('mongodb://localhost/labv2');
 
 // All environments.
@@ -50,19 +57,16 @@ app.use(express.urlencoded());
 app.use(express.methodOverride());
 app.use(express.cookieParser());
 app.use(express.session({
-  store: new RedisStore({
-    host: 'localhost',
-    port: 6379
-  }),
-  secret: 'what a secret'
+  store: store,
+  secret: secrets.storeSecret
 }));
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Development only.
-if ('development' == app.get('env')) {
+/*if ('development' == app.get('env')) {
   app.use(express.errorHandler());
-}
+}*/
 
 app.get('/', auth.hasSession(), routes.index);
 app.get('/auth', authRoute.page);
@@ -138,19 +142,21 @@ app.delete('/experiments/:id',
             auth.compareSessionAndToken(),
             experiments.delete);
 
+app.get('/test', function (req, res) { res.render('test'); });
+
+// My error handling
+app.use(errorHandler);
+
 // Handle 404s
 app.use(function (req, res, next) {
   res.send(404, 'Page not found');
 });
 
 
-// Test
-//app.get('/test', function (req, res) { res.render('test'); });
-
 bayeux.attach(server);
 server.listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
 
-handler.initialize(bayeux);
+handler.initialize(bayeux, store);
 handler.start();

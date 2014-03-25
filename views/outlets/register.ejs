@@ -1,9 +1,9 @@
 <h1 class="text-center">Remote Lab Sensors</h1>
 <h2 class="text-center">Register an Account</h2>
-<form role="form" {{action register on="submit"}}>
+<form role="form" {{action "register" on="submit"}}>
   <div class="form-group" {{bind-attr class="badUsername:has-error"}}>
     <label for="username" class="control-label">Username</label>
-    {{view App.UsernameInput value=username class="form-control" id="username" autofocus="autofocus" required="required"}}
+    {{input value=username class="form-control" id="username" autofocus="autofocus" required="required"}}
     {{#if badUsername}}
       <span class="help-block">
         <small>{{badUsernameMsg}}</small>
@@ -32,12 +32,18 @@
       </span>
     {{/if}}
   </div>
-  <div class="form-group">
+  <div class="form-group" {{bind-attr class="badDeviceId:has-error"}}>
     <label class="control-label" for="device-id">Device ID</label>
-    {{input value=deviceID class="form-control" id="device-id" required="required"}}
-    <span class="help-block">
-      <small>Provided with hardware</small>
-    </span>
+    {{input value=deviceId class="form-control" id="device-id" required="required"}}
+    {{#if badDeviceId}}
+      <span class="help-block">
+        <small>{{badDeviceIdMsg}}
+      </small>
+    {{else}}
+      <span class="help-block">
+        <small>Provided with hardware</small>
+      </span>
+    {{/if}}
   </div>
   {{#if responseError}}
     <div class="alert alert-danger">{{errorMsg}}</div>

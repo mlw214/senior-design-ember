@@ -29,6 +29,7 @@ App.ColorTransform = DS.Transform.extend({
     if (value) {  
       return {
         bound: value.bound,
+        boundType: value.boundType,
         auto: value.auto,
         lower: value.lower,
         upper: value.upper
@@ -40,6 +41,7 @@ App.ColorTransform = DS.Transform.extend({
     if (value) {  
       return {
         bound: value.bound,
+        boundType: value.boundType,
         auto: value.auto,
         lower: value.lower,
         upper: value.upper
@@ -56,6 +58,7 @@ App.Experiment = DS.Model.extend({
   cancelled: DS.attr('boolean', { defaultValue: false }),
   rate: DS.attr('number', { defaultValue: 1 }),
   contact: DS.attr('string', { defaultValue: 'none' }),
+  private: DS.attr('boolean', { defaultValue: false }),
   description: DS.attr('string'),
   gas: DS.attr('temp', {
     defaultValue: {
@@ -78,6 +81,7 @@ App.Experiment = DS.Model.extend({
   color: DS.attr('color', {
     defaultValue: {
       bound: false,
+      boundType: 'in',
       auto: false,
       lower: '#e5e5e5',
       upper: '#e7e7e7'

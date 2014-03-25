@@ -1,10 +1,11 @@
 App.SensorsController = Ember.Controller.extend({
   needs: 'application',
-  disabled: function () {
-    var running = this.get('controllers.application').get('running'),
-        owner = this.get('controllers.application').get('owner');
-    this.set('isDisabled', running && !owner);
-  }.observes('controllers.application.running',
+  hidden: function () {
+    var appCont = this.get('controllers.application'),
+        props = appCont.getProperties('private', 'owner');
+
+    return (props.private && !props.owner);
+  }.property('controllers.application.private',
               'controllers.application.owner'),
   actions: {
     toggleRelay: function () {
@@ -34,3 +35,12 @@ App.SensorsController = Ember.Controller.extend({
     }
   }
 });
+
+/*
+disabled: function () {
+    var running = this.get('controllers.application').get('running'),
+        owner = this.get('controllers.application').get('owner');
+    this.set('isDisabled', running && !owner);
+  }.observes('controllers.application.running',
+              'controllers.application.owner'),
+*/

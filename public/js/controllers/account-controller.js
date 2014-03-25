@@ -40,7 +40,7 @@ App.AccountController = Ember.ObjectController.extend({
         err = true;
       }
 
-      if (err) { return; }
+      if (err) return;
 
       data.changing = 'contact';
       Ember.$.ajax({
@@ -112,7 +112,7 @@ App.AccountController = Ember.ObjectController.extend({
         err = true;
       }
 
-      if (err) { return; }
+      if (err) return;
 
       Ember.$.ajax({
         type: 'put',

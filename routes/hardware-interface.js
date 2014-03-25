@@ -8,8 +8,8 @@ exports.relay = function (req, res) {
       return res.json(403, { error: 'Unauthorized' });
     } 
   }
-  if (relay !== null) { handler.toggleRelay(relay); }
-  else { return res.json(400, { error: 'Bad request' }); }
+  if (relay !== null) handler.toggleRelay(relay);
+  else return res.json(400, { error: 'Bad request' });
   handler.once('relay', function (state) {
     res.json({ relay: state });
   });
@@ -23,11 +23,10 @@ exports.canceller = function (req, res) {
       res.json(403, { error: 'Unauthorized' });
     } 
   }
-  if (canceller !== null) { handler.toggleCanceller(canceller); }
-  else { return res.json(400, { error: 'Bad request' }); }
+  if (canceller !== null) handler.toggleCanceller(canceller);
+  else return res.json(400, { error: 'Bad request' });
   handler.once('canceller', function (state) {
     res.json({ canceller: state });
-    //
   });
 };
 
@@ -40,5 +39,5 @@ exports.resetAlerts = function (req, res) {
       handler.resetAlerts();
       res.json({ reset: true });
     }
-  } else { res.json({ reset: false }); }
+  } else res.json({ reset: false });
 };

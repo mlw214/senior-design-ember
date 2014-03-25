@@ -4,6 +4,7 @@ window.App = Ember.Application.create();
 App.Router.map(function () {
   this.route('signin');
   this.route('register');
+  this.route('fourOhFour', { path: '*path' });
 });
 
 
@@ -39,11 +40,4 @@ App.Router.reopen({
 
 Ember.TextField.reopen({
   attributeBindings: ['required', 'autofocus'],
-});
-
-App.UsernameInput = Ember.TextField.extend({
-  focusOut: function (evt) {
-  },
-  focusIn: function (evt) {
-  }
 });

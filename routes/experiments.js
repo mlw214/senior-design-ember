@@ -1,12 +1,14 @@
 var Experiment = require('../models/experiment'),
+    tinycolor = require('tinycolor2'),
     handler = require('../lib/hardware-interface'),
     path = require('path'),
     root = path.resolve(__dirname, '../experiment-files/') + '/',
     fs = require('fs'),
     uuid = require('node-uuid');
 
-function checkBounds(data, errors) {
-  var gasLower, gasUpper, liquidLower, liquidUpper;
+function checkBounds(data) {
+  var gasLower, gasUpper, liquidLower, liquidUpper, colorLower, colorUpper,
+      key, errors = [];
   if (data.gas.bound) {
     gasLower = parseInt(data.gas.lower, 10);
     gasUpper = parseInt(data.gas.upper, 10);
@@ -55,10 +57,39 @@ function checkBounds(data, errors) {
       }
     }
   }
-  // Color checking
+  if (data.color.bound) {
+    colorLower = tinycolor(data.color.lower);
+    colorUpper = tinycolor(data.color.upper);
+    if (!colorLower.ok) {
+      errors.push({
+        error: 'Not a valid color',
+        field: 'colorLower'
+      });
+    }
+    if (!colorUpper.ok) {
+      errors.push({
+        error: 'Not a valid color',
+        field: 'colorUpper'
+      });
+    }
+    colorLower = colorLower.toRgb();
+    colorUpper = colorUpper.toRgb();
+
+    for (key in colorLower) {
+      if (colorLower[key] > colorUpper[key]) {
+        errors.push({
+          error: 'Upper bound must be lighter than the lower',
+          field: 'colorUpper'
+        });
+        break;
+      }
+    }
+  }
+  return errors;
 }
 
-function hasProperContactInfo(data, contactInfo, errors) {
+function hasProperContactInfo(data, contactInfo) {
+  var errors = [];
   if (data.contact === 'text') {
     if (!contactInfo.cellphone) {
       errors.push({
@@ -81,7 +112,7 @@ function hasProperContactInfo(data, contactInfo, errors) {
       });
     }
   }
-  return true;
+  return errors;
 }
 
 function escapeFileName(name) {
@@ -99,7 +130,7 @@ function escapeFileName(name) {
   // Remove ending period if present.
   if (name[name.length - 1] === '.') {
     return name.substring(0, name.length - 2) + '.txt';
-  } else { return name + '.txt'; }
+  } else return name + '.txt';
 }
 
 exports.read = function (req, res, next) {
@@ -120,10 +151,10 @@ exports.read = function (req, res, next) {
 exports.readAll = function (req, res, next) {
   var username = req.session.username,
       callback, opts = { sortBy: { start: -1 } };
-  if (!username) { return res.json(401, { error: 'Unauthorized' }); }
-  if (!req.query.page || req.query.page <= 0) { req.query.page = 1; }
+  if (!username) return res.json(401, { error: 'Unauthorized' });
+  if (!req.query.page || req.query.page <= 0) req.query.page = 1;
   callback = function (err, pageCount, docs) {
-    if (err) { return next(err); }
+    if (err) return next(err);
     res.json({ experiment: docs, meta: { pages: pageCount } });
   };
   Experiment.paginate({ owner: username }, req.query.page, 25, callback, opts);
@@ -133,7 +164,7 @@ exports.create = function (req, res, next) {
   var data = (req.body ? req.body.experiment : null),
       username = req.session.username,
       contactInfo = req.session.contactInfo,
-      errors = [];
+      errors = [], rate;
 
   if (!data) {
     return res.json(400, { error: 'Bad request' });
@@ -149,14 +180,28 @@ exports.create = function (req, res, next) {
       field: 'name'
     });
   }
-  checkBounds(data, errors);
-  hasProperContactInfo(data, req.session.contactInfo, errors);
-  if (errors.length) { return res.json(400, { formErrors: errors }); }
+  rate = parseInt(data.rate, 10);
+  if (isNaN(rate)) {
+    errors.push({
+      error: 'Not a number',
+      field: 'rate'
+    });
+  } else {
+    if (rate <= 0) {
+      errors.push({
+        error: 'Must be at least 1',
+        field: 'rate'
+      });
+    }
+  }
+  errors.concat(checkBounds(data));
+  errors.concat(hasProperContactInfo(data, req.session.contactInfo, errors));
+  if (errors.length) return res.json(400, { formErrors: errors });
   
   data.name = data.name.trim();
   
   Experiment.findOne({ name: data.name, owner: username}, function (err, doc) {
-    if (err) { return next(err); }
+    if (err) return next(err);
     if (doc) {
       errors.push({
         error: 'Experiment name already taken',
@@ -167,10 +212,10 @@ exports.create = function (req, res, next) {
     data.owner = username;
     data.path = root + username + '/' + uuid.v1() + '.txt';
     if (!handler.isLocked()) { handler.lock(); }
-    else { return res.json(400, { error: 'Experiment already underway' }); }
+    else return res.json(400, { error: 'Experiment already underway' });
     var experiment = new Experiment(data);
     experiment.save(function (err, prod, num) {
-      if (err) { return next(err); }
+      if (err) return next(err);
       var contact = {};
       contact[username] = contactInfo;
       handler.setExperiment(prod, contact);
@@ -188,13 +233,13 @@ exports.update = function (req, res, next) {
   if (!exp) {
     return res.json(400, { error: 'Bad request' });
   }
-  checkBounds(exp, errors);
-  hasProperContactInfo(exp, req.session.contactInfo, errors);
-  if (errors.length) { return res.json(400, { formErrors: errors }); }
+  errors.concat(checkBounds(exp));
+  errors.concat(hasProperContactInfo(exp, req.session.contactInfo));
+  if (errors.length) return res.json(400, { formErrors: errors });
 
   Experiment.findById(id, function (err, doc) {
-    if (err) { return next(err); }
-    if (!doc) { return res.json(404, { error: 'Experiment not found' }); }
+    if (err) return next(err);
+    if (!doc) return res.json(404, { error: 'Experiment not found' });
     if (doc.owner !== username) {
       return res.json(403, { error: 'Unauthorized' });
     }
@@ -209,7 +254,7 @@ exports.update = function (req, res, next) {
       }
     }
     doc.save(function (err, prod, num) {
-      if (err) { return next(err); }
+      if (err) return next(err);
       if (prod.stop) {
         handler.clearExperiment();
         handler.unlock();
@@ -225,8 +270,8 @@ exports.delete = function (req, res, next) {
 
   Experiment.findById(id, function (err, doc) {
     var running;
-    if (err) { return next(err); }
-    if (!doc) { return res.json(404, { error: 'Experiment not found' }); }
+    if (err) return next(err);
+    if (!doc) return res.json(404, { error: 'Experiment not found' });
     if (doc.owner !== username) {
       return res.json(403, { error: 'Unauthorized' });
     }
@@ -237,8 +282,11 @@ exports.delete = function (req, res, next) {
       }
     }
     doc.remove(function (err, doc) {
-      if (err) { return next(err); }
-      res.json({ experiment: doc.toJSON() });
+      if (err) return next(err);
+      fs.unlink(doc.path, function (err) {
+        if (err) return next(err);
+        res.json({ experiment: doc.toJSON() });
+      });
     });
   });
 };
@@ -258,12 +306,18 @@ exports.download = function (req, res, next) {
       username = req.session.username;
 
   Experiment.findById(id, function (err, doc) {
-    if (err) { return next(err); }
-    if (!doc) { return res.json(404, { error: 'Experiment not found' }); }
+    var running;
+    if (err) return next(err);
+    if (!doc) return res.json(404, { error: 'Experiment not found' });
     if (doc.owner !== username) {
       return res.json(403, { error: 'Unauthorized' });
     }
-    // Need to escape name.
+    running = handler.getExperiment();
+    if (running) {
+      if (running._id === doc._id.toString()) {
+        return res.redirect('/#/badRequest');
+      }
+    }
     res.download(doc.path, escapeFileName(doc.name));
   });
 };

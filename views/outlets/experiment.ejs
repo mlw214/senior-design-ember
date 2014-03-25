@@ -10,9 +10,14 @@
       </span>
     {{/if}}
   </div>
-  <div class="form-group">
+  <div class="form-group" {{bind-attr class="rateError:has-error"}}>
     <label class="control-label">Collection Rate (seconds)</label>
     {{view App.NumberField value=rate class="form-control" required="required" min="1"}}
+    {{#if rateError}}
+      <span class="help-block">
+        <small>{{rateErrorMsg}}</small>
+      </span>
+    {{/if}}
   </div>
   <div class="form-group">
     <label class="control-label">Description (optional)</label>
@@ -31,6 +36,11 @@
     </label>
     <label class="radio-inline">
       {{view App.RadioButton value="both" name="contact" selectionBinding="contact"}} Both
+    </label>
+  </div>
+  <div class="checkbox">
+    <label>
+      {{input type="checkbox" checked=private}} Private experiment
     </label>
   </div>
   <h3>Sensor Setup</h3>
@@ -97,13 +107,37 @@
   <label class="checkbox-inline">
     {{input type="checkbox" checked=color.auto disabled=noColorBound}} Auto Cancel
   </label>
-  <div class="form-group">
+  <div class="form-group" {{bind-attr class="badCBLower:has-error"}}>
     <label class="control-label">Lower Bound</label>
-    {{input type="color" value=color.lower class="form-control" disabled=noColorBound}}
+    {{view App.ColorInput value=color.lower class="form-control"}}
+    {{#if badCBLower}}
+      <span class="help-block">
+        <small>{{badCBLowerMsg}}</small>
+      </span>
+    {{/if}}
+  </div>
+  <div class="form-group" {{bind-attr class="badCBUpper:has-error"}}>
+    <label class="control-label">Upper Bound</label>
+    {{view App.ColorInput value=color.upper class="form-control"}}
+    {{#if badCBUpper}}
+      <span class="help-block">
+        <small>{{badCBUpperMsg}}</small>
+      </span>
+    {{/if}}
   </div>
   <div class="form-group">
-    <label class="control-label">Upper Bound</label>
-    {{input type="color" value=color.upper class="form-control" disabled=noColorBound}}
+    <div class="radio">
+      <label>
+        {{view App.RadioButton id="test1" value="in" name="bound-type" selectionBinding="color.boundType" disabled=noColorBound}}
+        Alert upon entering bounds
+      </label>
+    </div>
+    <div class="radio">
+      <label>
+        {{view App.RadioButton id="test2" value="out" name="bound-type" selectionBinding="color.boundType" disabled=noColorBound}}
+        Alert upon exiting bounds
+      </label>
+    </div>
   </div>
 </form>
 {{#if responseError}}

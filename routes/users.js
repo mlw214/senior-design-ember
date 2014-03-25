@@ -6,7 +6,8 @@ var User = require('../models/user'),
     checkPassword = require('../lib/password-rules'),
     password = require('../lib/password'),
     handler = require('../lib/hardware-interface');
-    root = require('../lib/global-settings').experimentFilePath;
+    root = require('../lib/global-settings').experimentFilePath,
+    deviceId = require('../lib/global-settings').deviceId;
 
 function createUserJSON(user) {
   return {
@@ -53,13 +54,19 @@ exports.create = function (req, res, next) {
   if (pwErrors.length) {
     errors = errors.concat(pwErrors);
   }
-  if (errors.length) { return res.json(400, { formErrors: errors }); }
+  if (data.deviceId !== deviceId) {
+    errors.push({
+      error: 'Invalid Device ID',
+      field: 'deviceId'
+    });
+  }
+  if (errors.length) return res.json(400, { formErrors: errors });
   User.newInstance(data.username, data.password, function (err, user) {
-    if (err) { return next(err); }
+    if (err) return next(err);
     if (user) {
       user.save(function (err, prod, num) {
-        if (err) { return next(err); }
-        res.send(200);
+        if (err) return next(err);
+        res.send();
       });
     } else {
       errors.push({
@@ -74,9 +81,9 @@ exports.create = function (req, res, next) {
 exports.read = function (req, res, next) {
   var id = req.session.uid
   User.findById(id, function (err, user) {
-    if (err) { return next(err); }
-    if (user) { res.json(200, createUserJSON(user)); }
-    else { res.json(404, { error: 'User not found' }); }
+    if (err) return next(err);
+    if (user) res.json(200, createUserJSON(user));
+    else res.json(404, { error: 'User not found' });
   });
 };
 
@@ -92,11 +99,11 @@ exports.update = function (req, res, next) {
   if (data.changing === 'contact') {
     // Updating contact info.
     User.findById(id, function (err, user) {
-      if (err) { return next(err); }
+      if (err) return next(err);
       if (user) {
         delete data.changing;
-        if (data.email) { data.email.trim(); }
-        if (data.cellphone) { data.cellphone.trim(); }
+        if (data.email) data.email.trim();
+        if (data.cellphone) data.cellphone.trim();
         // An empty string is allowed (used to clear record);
         if (!validator.isEmail(data.email) && data.email !== '') {
           errors.push({ error: 'Invalid email', field: 'email' });
@@ -118,14 +125,14 @@ exports.update = function (req, res, next) {
           });
         }
 
-        if (errors.length) { return res.json(400, { formErrors: errors }); }
+        if (errors.length) return res.json(400, { formErrors: errors });
 
         for (var key in data) {
           user[key] = data[key];
         }
         user.save(function (err, prod, num) {
           var exp;
-          if (err) { return next(err); }
+          if (err) return next(err);
           req.session.contactInfo = {
             email: prod.email,
             cellphone: prod.cellphone,
@@ -135,9 +142,9 @@ exports.update = function (req, res, next) {
           if (exp && exp.owner === req.session.username) {
             handler.setContactInfo(req.session.contactInfo);
           }
-          res.json(200, createUserJSON(prod));
+          res.json(createUserJSON(prod));
         });
-      } else { res.json(500, { error: 'The server exploded' }); }
+      } else res.json(500, { error: 'The server exploded' });
     });
   } else if (data.changing === 'password') {
     // Updating password.
@@ -146,10 +153,10 @@ exports.update = function (req, res, next) {
       return res.json(400, { formErrors: errors });
     }
     User.authenticateById(id, data.oldPassword, function (err, user) {
-      if (err) { return next(err); }
+      if (err) return next(err);
       if (user) {
         password.compare(data.newPassword, user.password, function (err, same) {
-          if (err) { return next(err); }
+          if (err) return next(err);
           if (same) {
             errors.push({
               error: 'New password is the same as the old one',
@@ -158,11 +165,11 @@ exports.update = function (req, res, next) {
             return res.json(400, { formErrors: errors });
           }
           password.encrypt(data.newPassword, function (err, hash) {
-            if (err) { return next(err); }
+            if (err) return next(err);
             user.password = hash;
             user.save(function (err) {
               if (err) return next(err);
-              res.send(200);
+              res.send();
             });
           });
         });
@@ -171,7 +178,7 @@ exports.update = function (req, res, next) {
         res.json(401, { formErrors: errors });
       }
     });
-  } else { res.json(400, { error: 'Bad request' }); }
+  } else res.json(400, { error: 'Bad request' });
 };
 
 exports.delete = function (req, res, next) {
@@ -182,15 +189,15 @@ exports.delete = function (req, res, next) {
     return res.json(400, { error: 'Bad request' });
   }
   User.authenticateById(id, data, function (err, user) {
-    if (err) { return next(err); }
+    if (err) return next(err);
     if (user) {
       // Cleanup handled by mongoose 'pre' method.
       user.remove(function (err, user) {
-        if (err) { return next(err); }
+        if (err) return next(err);
         req.session.regenerate(function (err) {
-          if (err) { return next(err); }
+          if (err) return next(err);
           req.session.deleted = true;
-          res.send(200);
+          res.send();
         });
       });
 

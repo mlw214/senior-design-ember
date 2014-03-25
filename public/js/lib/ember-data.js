@@ -3,7 +3,7 @@
  * @copyright Copyright 2011-2014 Tilde Inc. and contributors.
  *            Portions Copyright 2011 LivingSocial Inc.
  * @license   Licensed under MIT license (see license.js)
- * @version   1.0.0-beta.7+canary.d5562867
+ * @version   1.0.0-beta.7.f87cba88
  */
 (function(global) {
 var define, requireModule, require, requirejs;
@@ -1551,8 +1551,8 @@ define("ember-data/lib/adapters/rest_adapter",
           hash.data = JSON.stringify(hash.data);
         }
 
-        var headers = get(this, 'headers');
-        if (headers !== undefined) {
+        if (this.headers !== undefined) {
+          var headers = this.headers;
           hash.beforeSend = function (xhr) {
             forEach.call(Ember.keys(headers), function(key) {
               xhr.setRequestHeader(key, headers[key]);
@@ -1587,11 +1587,11 @@ define("ember-data/lib/core",
       /**
         @property VERSION
         @type String
-        @default '1.0.0-beta.7+canary.d5562867'
+        @default '1.0.0-beta.7.f87cba88'
         @static
       */
       DS = Ember.Namespace.create({
-        VERSION: '1.0.0-beta.7+canary.d5562867'
+        VERSION: '1.0.0-beta.7.f87cba88'
       });
 
       if ('undefined' !== typeof window) {

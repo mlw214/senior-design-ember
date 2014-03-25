@@ -168,4 +168,10 @@ public:
         }
         pthread_mutex_unlock(&(this->mux));
     }
+
+    void setCheckInBounds(bool b) {
+        pthread_mutex_lock(&(this->mux));
+        this->checkInBounds = b;
+        pthread_mutex_unlock(&(this->mux));
+    }
 };

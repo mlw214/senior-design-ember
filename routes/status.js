@@ -8,6 +8,7 @@ exports.get = function (req, res) {
   status.alerted = handler.alertsSent();
   if (experiment) {
     status.running = true;
+    status.private = experiment.private;
     if (experiment.owner === req.session.username) {
       status.owner = true;
     } else {
@@ -15,6 +16,7 @@ exports.get = function (req, res) {
     }
   } else {
     status.running = false;
+    status.private = false;
     status.owner = false;
   }
   res.json(status);

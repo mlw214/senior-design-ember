@@ -12,19 +12,30 @@ App.ApplicationRoute = Ember.Route.extend({
   setupController: function (controller, model) {
     var client = new Faye.Client('http://' + window.location.host + '/faye'),
         self = this,
-        sensorCont = this.controllerFor('sensors'),
-        subscription;
+        sensorsCont = this.controllerFor('sensors'),
+        alertSub, dataSub;
     controller.set('model', model);
-    controller.set('faye', client);
-    client.subscribe('/data', function (message) {
-      sensorCont.setProperties({
-        a: message.a,
-        l: message.l
-      });
+    client.addExtension({
+      outgoing: function (message, callback) {
+        if (message.channel !== '/meta/subscribe') {
+          return callback(message);
+        }
+
+        message.ext = message.ext || {};
+        message.ext.token = localStorage.token;
+        callback(message);
+      }
     });
+    controller.set('faye', client);
+    /*client.subscribe('/data', function (message) {
+      App.dataSubHandler.call(self, message, sensorCont);
+    });*/
     client.subscribe('/status', function (message) {
       if (message.hasOwnProperty('running')) {
         controller.set('running', message.running);
+      }
+      if (message.hasOwnProperty('private')) {
+        controller.set('private', message.private);
       }
       if (message.hasOwnProperty('relay')) {
         controller.set('relay', message.relay);
@@ -35,10 +46,21 @@ App.ApplicationRoute = Ember.Route.extend({
     });
     if (model.owner) {
       // Propagate changes here to experiment-controller.js.
-      subscription = client.subscribe('/alert', function (message) {
-        App.alertSubHandler.call(self, message, controller);
+      alertSub = client.subscribe('/alert', function (message) {
+        App.alertSubHandler.call(self, message, controller, sensorsCont);
       });
-      controller.set('alertSub', subscription);
+      controller.set('alertSub', alertSub);
+    }
+    if (model.owner && model.private) {
+      dataSub = client.subscribe('/data-private', function (message) {
+        App.dataSubHandler.call(self, message, sensorsCont);
+      });
+      controller.set('dataSub', dataSub);
+    } else {
+      dataSub = client.subscribe('/data', function (message) {
+        App.dataSubHandler.call(self, message, sensorsCont);
+      });
+      controller.set('dataSub', dataSub);
     }
   }
 });
@@ -88,6 +110,7 @@ App.Router.map(function () {
   });
   this.resource('account');
   this.route('signout');
+  this.route('badRequest');
   this.route('fourOhFour', { path: '*path' });
 });
 
@@ -148,7 +171,7 @@ App.ArchiveIndexRoute = Ember.Route.extend({
         for (i = 0; i < exps.length; ++i) {
           if (exps[i].get('id') == id) { exps.splice(i, 1); }
         }
-        if (((pages * 2) - exps.length) === 25) {
+        if (((pages * 25) - exps.length) === 25) {
           archiveCont.set('page', --page);
         }
       }
@@ -210,9 +233,16 @@ App.toastrFailCallback = function (jqXHR) {
   }
 };
 
-App.alertSubHandler = function (message, appCont) {
-  var sub, id, rec, gasSpan$, liquidSpan$, gasCount, liquidCount, html;
-  console.log(message);
+App.dataSubHandler = function (message, sensorsCont) {
+  sensorsCont.setProperties({
+    a: message.a,
+    l: message.l
+  });
+};
+
+App.alertSubHandler = function (message, appCont, sensorsCont) {
+  var id, rec, gasSpan$, liquidSpan$, gasCount, liquidCount, html,
+      dataSub, dataSubOld, client, self = this;
   if (message.hasOwnProperty('gas')) {
     gasSpan$ = $('#count-gas');
     gasCount = appCont.get('exceededCountGas') + 1;
@@ -253,8 +283,17 @@ App.alertSubHandler = function (message, appCont) {
         exceededCountGas: 0,
         exceededCountLiquid: 0
       });
-      sub = appCont.get('alertSub');
-      sub.cancel();
+      appCont.get('alertSub').cancel();
+      dataSubOld = appCont.get('dataSub');
+      client = appCont.get('faye');
+      dataSub = client.subscribe('/data', function (message) {
+        App.dataSubHandler(self, message, sensorsCont);
+      });
+      dataSub.then(function () {
+        dataSubOld.cancel();
+        appCont.set('dataSub', dataSub);
+      });
+      appCont.set('alertSub', null);
       id = appCont.incrementAndGetId();
       rec = self.store.createRecord('experiment', { id: id });
       self.set('content', rec);
@@ -265,10 +304,18 @@ App.alertSubHandler = function (message, appCont) {
 Ember.Handlebars.helper('format-date', function (date) {
   if (date) {
     return moment(date).format('MMM Do YYYY, h:mm a');
-  } else { return 'Ongoing'; }
+  } else return 'Ongoing';
 });
 
 Ember.Handlebars.helper('yes-no', function (bool) {
-  if (bool) { return 'Yes'; }
-  else { return 'No'; }
+  if (bool) return 'Yes';
+  else return 'No';
+});
+
+Ember.Handlebars.helper('expand-boundType', function (type) {
+  if (type === 'in') {
+    return 'Alert upon entering bounds';
+  } else {
+    return 'Alert upon leaving bounds';
+  }
 });
