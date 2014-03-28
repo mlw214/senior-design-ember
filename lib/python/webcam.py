@@ -97,29 +97,29 @@ def videoLoop(videoCapture):
     cv2.rectangle(bgrFrame, topLeft, bottomRight, color)
     sys.stdout.write(bgrFrame)
     sys.stdout.flush()
-
+"""
 def setBounds(lower, upper):
     global lowerBound, upperBound
-    lock.acquire()
+    mutex.acquire()
     lowerBound = lower
     upperBound = upper
-    lock.release()
+    mutex.release()
 
 def clearBounds():
     global lowerBound, upperBound
-    lock.acquire()
+    mutex.acquire()
     lowerBound = None
     upperBound = None
-    lock.release()
+    mutex.release()
 
 def setBoundsType(bType):
     global boundType
-    lock.acquire()
+    mutex.acquire()
     boundType = bType
-    lock.release()
-
+    mutex.release()
+"""
 def parseAndHandle(text):
-    global lowerBound, upperBound
+    global lowerBound, upperBound, boundType
     args = string.split(text)
     length = len(args)
     if 0 == length:
@@ -127,25 +127,25 @@ def parseAndHandle(text):
     if 'set' == args[0]:
         if 7 != length:
             sys.stderr.write('set: improper number of arguments')
-        lock.acquire()
+        mutex.acquire()
         lowerBound = int(args[1]), int(args[2]), int(args[3])
         upperBound = int(args[4]), int(args[5]), int(args[6])
-        lock.release()
+        mutex.release()
     elif 'clear' == args[0]:
         if 1 != length:
             sys.stderr.write('clear: improper number of arguments')
-        lock.acquire()
+        mutex.acquire()
         lowerBound = None
         upperBound = None
-        lock.release()
+        mutex.release()
     elif 'bound-type' == args[0]:
         if 2 != length:
             sys.stderr.write('bound-type: improper number of arguments')
         if args[1] != 'in' and args[1] != 'out':
             sys.stderr.write('bound-type: unknown command ' + args[1])
-        lock.acquire()
+        mutex.acquire()
         boundType = args[1]
-        lock.release()
+        mutex.release()
 
 
 
