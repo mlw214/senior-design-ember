@@ -10,8 +10,8 @@ topRight = None
 bottomLeft = None
 bottomRight = None
 color = 255, 255, 255
-lowerBound = [0, 160, 60]
-upperBound = [15, 255, 255]
+lowerBound = None
+upperBound = None
 boundType = 'in'
 threshold = 0.05
 mutex = threading.Lock()
@@ -161,7 +161,7 @@ def main():
 
     # Go into stdin listening mode
     while True:
-        text = raw_input('press q to quit')
+        text = raw_input()
         parseAndHandle(text)
 
 
