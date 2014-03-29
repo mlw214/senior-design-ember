@@ -2,8 +2,8 @@
 import cv2, numpy, string, sys, threading, time
 
 
-boxWidth = 80
-boxHeight = 80
+boxWidth = 25
+boxHeight = 25
 area = float(boxWidth * boxHeight)
 topLeft = None
 topRight = None
@@ -156,6 +156,9 @@ def main():
         sys.stderr.flush()
         sys.exit(1)
 
+    cap.set(4, 240)
+    cap.set(3, 320)
+    cap.set(5, 7.5)
     setPoints(cap)
     loopStop = videoLoop(cap)
 

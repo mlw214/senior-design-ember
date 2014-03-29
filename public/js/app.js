@@ -69,6 +69,7 @@ App.ApplicationController = Ember.ObjectController.extend({
   modelIdCount: -1,
   exceededCountGas: 0,
   exceededCountLiquid: 0,
+  exceededCountColor: 0,
   incrementAndGetId: function () {
     var id = this.get('modelIdCount');
     this.set('modelIdCount', ++id);
@@ -241,8 +242,8 @@ App.dataSubHandler = function (message, sensorsCont) {
 };
 
 App.alertSubHandler = function (message, appCont, sensorsCont) {
-  var id, rec, gasSpan$, liquidSpan$, gasCount, liquidCount, html,
-      dataSub, dataSubOld, client, self = this;
+  var id, rec, gasSpan$, liquidSpan$, colorSpan$, gasCount, liquidCount,
+      colorCount, html, dataSub, dataSubOld, client, self = this;
   if (message.hasOwnProperty('gas')) {
     gasSpan$ = $('#count-gas');
     gasCount = appCont.get('exceededCountGas') + 1;
@@ -251,8 +252,12 @@ App.alertSubHandler = function (message, appCont, sensorsCont) {
       html = gasCount + ' times since signin';
       gasSpan$.html(html);
     } else {
-      html = '<span id="count-gas">' + gasCount + 
-            ' time since signin</span>';
+      html = '<span id="count-gas">' + gasCount;
+      if (gasCount > 1) {
+        html += ' times since signin</span>';
+      } else {
+        html += ' time since signin</span>';
+      }
       toastr.warning(html, 'Gas Bound Exceeded',
                       { timeOut: 0, extendedTimeOut: 0 });
     }
@@ -265,9 +270,31 @@ App.alertSubHandler = function (message, appCont, sensorsCont) {
       html = liquidCount + ' times since signin'
       liquidSpan$.html(html);
     } else {
-      html = '<span id="count-liquid">' + liquidCount +
-            ' time since signin</span>';
+      html = '<span id="count-liquid">' + liquidCount;
+      if (liquidCount > 1) {
+        html += ' times since signin</span>';
+      } else {
+        html += ' time since signin</span>';
+      }
       toastr.warning(html, 'Liquid Bound Exceeded',
+                      { timeOut: 0, extendedTimeOut: 0 });
+    }
+  }
+  if (message.hasOwnProperty('color')) {
+    colorSpan$ = $('#count-color');
+    colorCount = appCont.get('exceededCountColor') + 1;
+    appCont.set('exceededCountColor', colorCount);
+    if (colorSpan$.length) {
+      html = colorCount + ' times since signin';
+      colorSpan$.html(html);
+    } else {
+      html = '<spand id="count-color">' + colorCount;
+      if (colorCount > 1) {
+        html += ' times since signin</span>';
+      } else {
+        html += ' time since signin</span>';
+      }
+      toastr.warning(html, 'Color Bound Exceeded',
                       { timeOut: 0, extendedTimeOut: 0 });
     }
   }
