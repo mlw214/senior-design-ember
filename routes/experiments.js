@@ -72,13 +72,13 @@ function checkBounds(data) {
         field: 'colorUpper'
       });
     }
-    colorLower = colorLower.toRgb();
-    colorUpper = colorUpper.toRgb();
+    colorLower = colorLower.toHsv();
+    colorUpper = colorUpper.toHsv();
 
     for (key in colorLower) {
       if (colorLower[key] > colorUpper[key]) {
         errors.push({
-          error: 'Upper bound must be lighter than the lower',
+          error: 'Upper bound must be greater than the lower (in HSV color space)',
           field: 'colorUpper'
         });
         break;

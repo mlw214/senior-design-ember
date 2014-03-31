@@ -120,14 +120,14 @@ App.ExperimentController = Ember.ObjectController.extend({
         this.set('badCBUpperMsg', 'Not a valid color');
         err = true;
       }
-      colorLower = colorLower.toRgb();
-      colorUpper = colorUpper.toRgb();
+      colorLower = colorLower.toHsv();
+      colorUpper = colorUpper.toHsv();
 
       for (key in colorLower) {
         if (colorLower[key] > colorUpper[key]) {
           this.set('badCBUpper', true);
           this.set('badCBUpperMsg',
-                    'Upper bound must be lighter than the lower');
+                    'Upper bound must be greater than the lower (in HSV color space)');
           err = true;
           break;
         }
