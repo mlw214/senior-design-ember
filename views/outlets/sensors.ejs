@@ -2,7 +2,7 @@
 {{#if hidden}}
   <h2 class="text-center">There is currently a private experiment running. You do not have permission to view it.</h2>
 {{else}}
-  
+  {{view App.FlowplayerView}}
   <div class="row">
     <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
       <button class="btn btn-primary" {{action "toggleRelay"}} {{bind-attr disabled=controllers.application.buttonDisabled}}>
