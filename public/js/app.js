@@ -13,6 +13,7 @@ App.ApplicationRoute = Ember.Route.extend({
     var client = new Faye.Client('http://' + window.location.host + '/faye'),
         self = this,
         sensorsCont = this.controllerFor('sensors'),
+        expCont = this.controllerFor('experiment'),
         alertSub, dataSub;
     controller.set('model', model);
     client.addExtension({
@@ -27,9 +28,6 @@ App.ApplicationRoute = Ember.Route.extend({
       }
     });
     controller.set('faye', client);
-    /*client.subscribe('/data', function (message) {
-      App.dataSubHandler.call(self, message, sensorCont);
-    });*/
     client.subscribe('/status', function (message) {
       if (message.hasOwnProperty('running')) {
         controller.set('running', message.running);
@@ -47,18 +45,18 @@ App.ApplicationRoute = Ember.Route.extend({
     if (model.owner) {
       // Propagate changes here to experiment-controller.js.
       alertSub = client.subscribe('/alert', function (message) {
-        App.alertSubHandler.call(self, message, controller, sensorsCont);
+        App.alertSubHandler(message, controller, expCont, sensorsCont);
       });
       controller.set('alertSub', alertSub);
     }
     if (model.owner && model.private) {
       dataSub = client.subscribe('/data-private', function (message) {
-        App.dataSubHandler.call(self, message, sensorsCont);
+        App.dataSubHandler(message, sensorsCont);
       });
       controller.set('dataSub', dataSub);
     } else {
       dataSub = client.subscribe('/data', function (message) {
-        App.dataSubHandler.call(self, message, sensorsCont);
+        App.dataSubHandler(message, sensorsCont);
       });
       controller.set('dataSub', dataSub);
     }
@@ -111,7 +109,6 @@ App.Router.map(function () {
   });
   this.resource('account');
   this.route('signout');
-  this.route('badRequest');
   this.route('fourOhFour', { path: '*path' });
 });
 
@@ -241,7 +238,7 @@ App.dataSubHandler = function (message, sensorsCont) {
   });
 };
 
-App.alertSubHandler = function (message, appCont, sensorsCont) {
+App.alertSubHandler = function (message, appCont, expCont, sensorsCont) {
   var id, rec, gasSpan$, liquidSpan$, colorSpan$, gasCount, liquidCount,
       colorCount, html, dataSub, dataSubOld, client, self = this;
   if (message.hasOwnProperty('gas')) {
@@ -308,13 +305,14 @@ App.alertSubHandler = function (message, appCont, sensorsCont) {
         owner: false,
         alerted: false,
         exceededCountGas: 0,
-        exceededCountLiquid: 0
+        exceededCountLiquid: 0,
+        exceededCountColor: 0
       });
       appCont.get('alertSub').cancel();
       dataSubOld = appCont.get('dataSub');
       client = appCont.get('faye');
       dataSub = client.subscribe('/data', function (message) {
-        App.dataSubHandler(self, message, sensorsCont);
+        App.dataSubHandler(message, sensorsCont);
       });
       dataSub.then(function () {
         dataSubOld.cancel();
@@ -322,8 +320,8 @@ App.alertSubHandler = function (message, appCont, sensorsCont) {
       });
       appCont.set('alertSub', null);
       id = appCont.incrementAndGetId();
-      rec = self.store.createRecord('experiment', { id: id });
-      self.set('content', rec);
+      rec = appCont.store.createRecord('experiment', { id: id });
+      expCont.set('content', rec);
     }
   }
 };

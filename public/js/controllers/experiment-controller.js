@@ -201,12 +201,12 @@ App.ExperimentController = Ember.ObjectController.extend({
         client = appCont.get('faye');
         // Propagate changes here to app.js.
         alertSub = client.subscribe('/alert', function (message) {
-          App.alertSubHandler.call(self, message, appCont, sensorsCont);
+          App.alertSubHandler(message, appCont, self, sensorsCont);
         });
         if (response.get('private')) {
           dataSubOld = appCont.get('dataSub');
           dataSub = client.subscribe('/data-private', function (message) {
-            App.dataSubHandler.call(self, message, sensorsCont);
+            App.dataSubHandler(message, sensorsCont);
           });
           dataSub.then(function () {
             dataSubOld.cancel();
@@ -233,11 +233,11 @@ App.ExperimentController = Ember.ObjectController.extend({
         client = appCont.get('faye');
         if (response.get('private')) {
           dataSub = client.subscribe('/data-private', function (message) {
-            App.dataSubHandler.call(self, message, sensorsCont);
+            App.dataSubHandler(message, sensorsCont);
           });
         } else {
           dataSub = client.subscribe('/data', function (message) {
-            App.dataSubHandler.call(self, message, sensorsCont);
+            App.dataSubHandler(message, sensorsCont);
           });
         }
         dataSub.then(function () {
@@ -264,14 +264,15 @@ App.ExperimentController = Ember.ObjectController.extend({
           owner: false,
           alerted: false,
           exceededCountLiquid: 0,
-          exceededCountGas: 0
+          exceededCountGas: 0,
+          exceededCountColor: 0
         });
         if (response.get('private')) {
           dataSubOld = appCont.get('dataSub');
           client = appCont.get('faye');
 
           dataSub = client.subscribe('/data', function (message) {
-            App.dataSubHandler.call(self, message, sensorsCont);
+            App.dataSubHandler(message, sensorsCont);
           });
           // Cancel previous subscription once new one is connected.
           // Avoids losing data.

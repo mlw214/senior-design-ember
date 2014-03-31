@@ -26,7 +26,7 @@
     <script type="text/x-handlebars">
     <div id="wrap">
 
-      <!-- Static navbar -->
+    <!-- Static navbar -->
       <div class="navbar navbar-default navbar-static-top" role="navigation">
         <div class="container">
           <div class="navbar-header">
@@ -71,6 +71,8 @@
         </div>
       </div>
 
+      
+
       <div class="container">
 
         
@@ -89,12 +91,17 @@
     </footer>
     </script>
 
+    
     <script type="text/x-handlebars" data-template-name="experiment">
       <%- include outlets/experiment %>
     </script>
 
     <script type="text/x-handlebars" data-template-name="sensors">
       <%- include outlets/sensors %>
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="account">
+      <%- include outlets/account %>
     </script>
 
     <script type="text/x-handlebars" data-template-name="archive">
@@ -109,13 +116,11 @@
       <%- include outlets/record %>
     </script>
 
-    <script type="text/x-handlebars" data-template-name="account">
-      <%- include outlets/account %>
-    </script>
-
     <script type="text/x-handlebars" data-template-name="fourOhFour">
       <%- include outlets/404 %>
     </script>
+
+    
 
     <!-- Required JS Libraries -->
     <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.7.1/modernizr.min.js"></script>
@@ -151,7 +156,7 @@
     <script src="/js/lib/ember.js"></script>
     <script src="/js/lib/ember-data.js"></script>
     <script src="/js/lib/notifications.js"></script>
-    <script src="http://localhost:3000/faye/client.js"></script>
+    <script src="//localhost:3000/faye/client.js"></script>
     <!-- Start application -->
     <script src="/js/app.js"></script>
     <script src="/js/controllers/experiment-controller.js"></script>

@@ -27,7 +27,6 @@ App.SensorsController = Ember.Controller.extend({
     resetAlerts: function () {
       var self = this;
       Ember.$.get('reset-alerts').then(function (response) {
-        console.log(response);
         if (response.reset) {
           self.set('controllers.application.alerted', false);
         }
@@ -35,12 +34,3 @@ App.SensorsController = Ember.Controller.extend({
     }
   }
 });
-
-/*
-disabled: function () {
-    var running = this.get('controllers.application').get('running'),
-        owner = this.get('controllers.application').get('owner');
-    this.set('isDisabled', running && !owner);
-  }.observes('controllers.application.running',
-              'controllers.application.owner'),
-*/
