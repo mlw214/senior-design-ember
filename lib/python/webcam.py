@@ -128,7 +128,7 @@ def parseAndHandle(text):
         if 7 != length:
             sys.stderr.write('set: improper number of arguments')
         mutex.acquire()
-        lowerBound = int(float(args[1])), int(float(args[2])), int((floatargs[3]))
+        lowerBound = int(float(args[1])), int(float(args[2])), int(float(args[3]))
         upperBound = int(float(args[4])), int(float(args[5])), int(float(args[6]))
         mutex.release()
     elif 'clear' == args[0]:

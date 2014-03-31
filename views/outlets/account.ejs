@@ -8,7 +8,7 @@
       Contact information is used for experiment alerts.
       You can remove your information by submitting empty forms.
     </p>
-    <form role="form" {{action saveContact on="submit"}}>
+    <form role="form" {{action "saveContact" on="submit"}}>
       <div class="form-group" {{bind-attr class="badEmail:has-error"}}>
         <label class="control-label">Email</label>
         {{input value=email type="email" class="form-control" placeholder="email@example.com"}}
@@ -48,7 +48,7 @@
     <h3 class="panel-title">Change Password</h3>
   </div>
   <div class="panel-body">
-    <form role="form" {{action savePassword on="submit"}}>
+    <form role="form" {{action "savePassword" on="submit"}}>
       <div class="form-group" {{bind-attr class="failedChange:has-error"}}>
         <label class="control-label">Old Password</label>
         {{input value=oldPassword type="password" class="form-control" placeholder="Your old password" required="required"}}
@@ -93,7 +93,7 @@
   </div>
   <div class="panel-body">
     <p>Delete your account and all data related to it. There is no means of recovery.</p>
-    <form id="delete-form" {{action deleteAccount on="submit"}}>
+    <form id="delete-form" {{action "deleteAccount" on="submit"}}>
       <div class="form-group" {{bind-attr class="failedDelete:has-error"}}>
         <label class="control-label">Password</label>
         {{input value=password type="password" class="form-control" placeholder="Your password" required="required"}}
