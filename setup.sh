@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Miller Wilt
+# 2013-04-12
+# setup.sh
+
+# Setup script to prepare new servers to run our Node.js app.
+
 mkdir experiment-files security
 
 touch ./security/secret.js

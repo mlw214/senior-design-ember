@@ -1,5 +1,8 @@
 {
-  "name": "remote-sensors-lab",
+  // Miller Wilt
+  // 2013-04-12
+  // package.json
+  "name": "remote-lab-sensors",
   "version": "0.0.1",
   "private": true,
   "scripts": {

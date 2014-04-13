@@ -1,3 +1,8 @@
+/*
+ * Miller Wilt
+ * 2013-04-12
+ * routes/harware-interface.js
+ */
 var handler = require('../lib/hardware-interface');
 
 exports.relay = function (req, res) {
@@ -6,7 +11,7 @@ exports.relay = function (req, res) {
   if (experiment) {
     if (experiment.owner !== req.session.username) {
       return res.json(403, { error: 'Unauthorized' });
-    } 
+    }
   }
   if (relay !== null) handler.toggleRelay(relay);
   else return res.json(400, { error: 'Bad request' });
@@ -21,7 +26,7 @@ exports.canceller = function (req, res) {
   if (experiment) {
     if (experiment.owner !== req.session.username) {
       res.json(403, { error: 'Unauthorized' });
-    } 
+    }
   }
   if (canceller !== null) handler.toggleCanceller(canceller);
   else return res.json(400, { error: 'Bad request' });

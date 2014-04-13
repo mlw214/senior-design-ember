@@ -1,4 +1,9 @@
-
+/*
+ * Miller Wilt
+ * 2013-04-12
+ * app.js
+ */
+// Main entry point for the Node.js application.
 /**
  * Module dependencies.
  */
@@ -22,7 +27,6 @@ var express = require('express'),
     verifyToken = require('./lib/middleware/verify-token'),
     auth = require('./lib/middleware/authorization'),
     errorHandler = require('./lib/middleware/error-handling'),
-
 // Other modules.
     User = require('./models/user'),
     handler = require('./lib/hardware-interface'),
@@ -68,6 +72,9 @@ app.use(express.static(path.join(__dirname, 'public')));
   app.use(express.errorHandler());
 }*/
 
+// Start Routing
+
+// Webpages.
 app.get('/', auth.hasSession(), routes.index);
 app.get('/auth', authRoute.page);
 
@@ -83,12 +90,10 @@ app.get('/status',
         verifyToken(),
         auth.compareSessionAndToken(),
         status.get);
-
 app.get('/reset-alerts',
         verifyToken(),
         auth.compareSessionAndToken(),
         handlerRoute.resetAlerts);
-
 app.put('/relay',
         verifyToken(),
         auth.compareSessionAndToken(),
@@ -142,7 +147,8 @@ app.delete('/experiments/:id',
             auth.compareSessionAndToken(),
             experiments.delete);
 
-app.get('/test', function (req, res) { res.render('test'); });
+// For testing.
+//app.get('/test', function (req, res) { res.render('test'); });
 
 // My error handling
 app.use(errorHandler);
@@ -151,7 +157,6 @@ app.use(errorHandler);
 app.use(function (req, res, next) {
   res.send(404, 'Page not found');
 });
-
 
 bayeux.attach(server);
 server.listen(app.get('port'), function(){

@@ -1,3 +1,8 @@
+/*
+ * Miller Wilt
+ * 2013-04-12
+ * routes/users.js
+ */
 var User = require('../models/user'),
     createToken = require('../lib/create-token'),
     fs = require('fs'),

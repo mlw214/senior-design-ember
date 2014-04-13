@@ -1,3 +1,8 @@
+/*
+ * Miller Wilt
+ * 2013-04-12
+ * routes/experiment.js
+ */
 var Experiment = require('../models/experiment'),
     tinycolor = require('tinycolor2'),
     handler = require('../lib/hardware-interface'),
@@ -197,9 +202,9 @@ exports.create = function (req, res, next) {
   errors.concat(checkBounds(data));
   errors.concat(hasProperContactInfo(data, req.session.contactInfo, errors));
   if (errors.length) return res.json(400, { formErrors: errors });
-  
+
   data.name = data.name.trim();
-  
+
   Experiment.findOne({ name: data.name, owner: username}, function (err, doc) {
     if (err) return next(err);
     if (doc) {

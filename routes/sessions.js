@@ -1,3 +1,8 @@
+/*
+ * Miller Wilt
+ * 2013-04-12
+ * routes/sessions.js
+ */
 var User = require('../models/user'),
     createToken = require('../lib/create-token');
 
@@ -10,7 +15,7 @@ exports.create = function (req, res, next) {
   if (!data.username || !data.password) {
     return res.json(400, { error: 'Both username and password are required' });
   }
-  User.authenticateByUsername(data.username, data.password, 
+  User.authenticateByUsername(data.username, data.password,
                               function (err, user) {
     if (err) return next(err);
     if (user) {

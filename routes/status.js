@@ -1,3 +1,8 @@
+/*
+ * Miller Wilt
+ * 2013-04-12
+ * routes/status.js
+ */
 var handler = require('../lib/hardware-interface');
 
 exports.get = function (req, res) {

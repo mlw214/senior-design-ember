@@ -1,4 +1,7 @@
-#! /usr/bin/python
+#! /usr/bin/env python
+# Miller Wilt
+# 2013-04-12
+# lib/python/arduino.py
 import os.path, random, serial, sys, time
 
 fpath = '/dev/ttyACM0'
@@ -16,6 +19,7 @@ if (os.path.exists(fpath)):
             sys.stdout.flush()
 
 else:
+    # Simulate Arduino (useful for testing).
     while True:
         command = raw_input()
         if command == 'd':

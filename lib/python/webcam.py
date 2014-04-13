@@ -1,6 +1,8 @@
 #! /usr/bin/env python
+# Miller Wilt
+# 2013-04-13
+# lib/python/webcam.py
 import cv2, numpy, string, sys, threading, time
-
 
 boxWidth = 25
 boxHeight = 25
@@ -68,7 +70,7 @@ def analyzeFrame(bgrFrame):
         boxFlat = centeredBox.reshape([-1, 3])
         numBroken = 0
         # Doing it this ways removes worry of checkInBounds changing while analyzing an individual frame
-        # i.e., it won't take affect until the next frame.
+        # i.e., it won't take effect until the next frame.
         if boundType == 'in':
             for i in xrange(0, (boxFlat.shape)[0]):
                 isGreaterLower = numpy.all(numpy.greater(boxFlat[i], lowerBound))
@@ -85,7 +87,6 @@ def analyzeFrame(bgrFrame):
         if (numBroken/area) >= threshold:
             sys.stderr.write('Exceeded\n')
             sys.stderr.flush()
-        
 
 
     mutex.release()
@@ -97,27 +98,7 @@ def videoLoop(videoCapture):
     cv2.rectangle(bgrFrame, topLeft, bottomRight, color)
     sys.stdout.write(bgrFrame)
     sys.stdout.flush()
-"""
-def setBounds(lower, upper):
-    global lowerBound, upperBound
-    mutex.acquire()
-    lowerBound = lower
-    upperBound = upper
-    mutex.release()
 
-def clearBounds():
-    global lowerBound, upperBound
-    mutex.acquire()
-    lowerBound = None
-    upperBound = None
-    mutex.release()
-
-def setBoundsType(bType):
-    global boundType
-    mutex.acquire()
-    boundType = bType
-    mutex.release()
-"""
 def parseAndHandle(text):
     global lowerBound, upperBound, boundType
     args = string.split(text)
@@ -126,27 +107,34 @@ def parseAndHandle(text):
         return
     if 'set' == args[0]:
         if 7 != length:
-            sys.stderr.write('set: improper number of arguments')
+            sys.stderr.write('set: improper number of arguments\n')
+            sys.stderr.flush()
+            return
         mutex.acquire()
         lowerBound = int(float(args[1])), int(float(args[2])), int(float(args[3]))
         upperBound = int(float(args[4])), int(float(args[5])), int(float(args[6]))
         mutex.release()
     elif 'clear' == args[0]:
         if 1 != length:
-            sys.stderr.write('clear: improper number of arguments')
+            sys.stderr.write('clear: improper number of arguments\n')
+            sys.stderr.flush()
+            return
         mutex.acquire()
         lowerBound = None
         upperBound = None
         mutex.release()
     elif 'bound-type' == args[0]:
         if 2 != length:
-            sys.stderr.write('bound-type: improper number of arguments')
-        if args[1] != 'in' and args[1] != 'out':
-            sys.stderr.write('bound-type: unknown command ' + args[1])
+            sys.stderr.write('bound-type: improper number of arguments\n')
+            sys.stderr.flush()
+            return
+        elif args[1] != 'in' and args[1] != 'out':
+            sys.stderr.write('bound-type: unknown command ' + args[1] + '\n')
+            sys.stderr.flush()
+            return
         mutex.acquire()
         boundType = args[1]
         mutex.release()
-
 
 
 def main():
